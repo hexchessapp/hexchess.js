@@ -756,7 +756,7 @@ export class HexChess {
   private _pieceInDirection(from: Vector, to: Vector, board = this._board): Piece | undefined {
     const blockingPosition = from.clone().add(to) as Vector
     const blockingHexagon = this._vectorToHexagon(blockingPosition)
-    return this._board.get(blockingHexagon)
+    return board.get(blockingHexagon)
   }
 
   private _vectorToHexagon(vector: Vector): Hexagon {
