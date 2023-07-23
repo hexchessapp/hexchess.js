@@ -40,30 +40,24 @@ import pieceInDirection from './utils/pieceInDirection';
 
 export class HexChess {
   protected _board: Map<Consts.Hexagon, Consts.Piece> = new Map()
-  protected _moves: Map<Consts.Hexagon, Consts.MoveSymbol> = new Map()
   protected _turn: Consts.Color = Consts.WHITE
-  protected _header: Record<string, string> = {}
   protected _kings: Map<Consts.Color, Consts.Hexagon> = new Map()
   protected _epHexagon: Consts.Hexagon | undefined = undefined
   protected _halfMoves = 0
   protected _moveNumber = 0
-  protected _history: History[] = []
   protected _positionCounts: Record<string, number> = {}
 
   constructor(fen = Consts.DEFAULT_POSITION) {
     this.load(fen)
   }
 
-  clear(keepHeaders = false) {
+  clear() {
     this._board = new Map()
-    this._moves = new Map()
     this._kings = new Map()
     this._turn = Consts.WHITE
     this._epHexagon = undefined
     this._halfMoves = 0
     this._moveNumber = 1
-    this._history = []
-    this._header = keepHeaders ? this._header : {}
   }
 
   public load = load;
@@ -78,4 +72,28 @@ export class HexChess {
   protected _vectorToHexagon = vectorToHexagon;
   protected _hexagonToVector = hexagonToVector;
   protected _isWithinBounds = isWithinBounds;
+
+  getBoard(): Map<Consts.Hexagon, Consts.Piece> {
+    return this._board;
+  }
+
+  getTurn(): Consts.Color {
+    return this._turn;
+  }
+
+  getKings(): Map<Consts.Color, Consts.Hexagon> {
+    return this._kings;
+  }
+
+  getEpHexagon(): Consts.Hexagon | undefined {
+    return this._epHexagon;
+  }
+
+  getHalfMoves(): number {
+    return this._halfMoves;
+  }
+
+  getMoveNumber(): number {
+    return this._moveNumber;
+  }
 }
