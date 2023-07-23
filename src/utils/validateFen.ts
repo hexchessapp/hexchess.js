@@ -1,6 +1,4 @@
-import { HexChess } from "./../hexchess"
-
-function validateFen(this: HexChess, fen: string) {
+function validateFen(fen: string) {
     // 1st criterion: 5 space-seperated fields?
     const tokens = fen.split(/\s+/)
     if (tokens.length !== 5) {

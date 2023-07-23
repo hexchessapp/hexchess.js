@@ -1,7 +1,6 @@
-import { HexChess } from "./../hexchess"
 import { Vector } from "vector2d"
 
-function isWithinBounds(this: HexChess, coord: Vector): boolean {
+function isWithinBounds(coord: Vector): boolean {
     if (
       Math.abs(coord.x) > 5 ||
       Math.abs(coord.y) > 5 ||
