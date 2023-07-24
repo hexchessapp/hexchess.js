@@ -1,4 +1,4 @@
-import { Vector } from "vector2d"
+import { Vector } from 'vector2d'
 
 export const WHITE = 'w'
 export const BLACK = 'b'
@@ -86,18 +86,19 @@ export const HEXAGONS: Hexagon[] = [
  * NOTES ABOUT COORDINATE MOVE GENERATION
  * ----------------------------------------------------------------------------
  * A coordinate is a 2 dimensional location on the hexagonal board as follows:
- * 
+ *
  * y
  * |
  * \
  *  x
- * 
+ *
  * The origin hexagon is f6
  */
 
 export const MOVES = new Map<PieceSymbol, Array<Vector>>([
   [
-    'p', [
+    'p',
+    [
       new Vector(0, 1), // w-standard
       new Vector(0, 2), // w-initial
       new Vector(1, 1), // w-attack-right+ep
@@ -109,7 +110,8 @@ export const MOVES = new Map<PieceSymbol, Array<Vector>>([
     ],
   ],
   [
-    'n', [
+    'n',
+    [
       new Vector(1, 3), // t-right
       new Vector(-1, 2), // t-left
       new Vector(2, 3), // tr-right
@@ -125,7 +127,8 @@ export const MOVES = new Map<PieceSymbol, Array<Vector>>([
     ],
   ],
   [
-    'b', [
+    'b',
+    [
       new Vector(1, 2), // trd
       new Vector(-1, 1), // tld
       new Vector(2, 1), // rd
@@ -135,7 +138,8 @@ export const MOVES = new Map<PieceSymbol, Array<Vector>>([
     ],
   ],
   [
-    'r', [
+    'r',
+    [
       new Vector(0, 1), // t
       new Vector(1, 1), // tr
       new Vector(-1, 0), // tl
@@ -145,7 +149,8 @@ export const MOVES = new Map<PieceSymbol, Array<Vector>>([
     ],
   ],
   [
-    'q', [
+    'q',
+    [
       new Vector(1, 2), // trd
       new Vector(-1, 1), // tld
       new Vector(2, 1), // rd
@@ -158,10 +163,11 @@ export const MOVES = new Map<PieceSymbol, Array<Vector>>([
       new Vector(0, -1), // b
       new Vector(1, 0), // br
       new Vector(-1, -1), // bl
-    ]
+    ],
   ],
   [
-    'k', [
+    'k',
+    [
       new Vector(1, 2), // trd
       new Vector(-1, 1), // tld
       new Vector(2, 1), // rd

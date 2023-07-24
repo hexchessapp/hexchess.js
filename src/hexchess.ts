@@ -25,75 +25,68 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as Consts from './consts';
-import load from './load';
-import move from './move';
-import ascii from './ascii';
-import vectorToHexagon from './utils/vectorToHexagon';
-import validateFen from './utils/validateFen';
-import put from './utils/put';
-import possibleMoves from './utils/possibleMoves';
-import kingInCheck from './utils/kingInCheck';
-import isWithinBounds from './utils/isWithinBounds';
-import hexagonToVector from './utils/hexagonToVector';
-import pieceInDirection from './utils/pieceInDirection';
+import load from './load'
+import move from './move'
+import ascii from './ascii'
+import clear from './clear'
+import vectorToHexagon from './utils/vectorToHexagon'
+import validateFen from './utils/validateFen'
+import put from './utils/put'
+import possibleMoves from './utils/possibleMoves'
+import kingInCheck from './utils/kingInCheck'
+import isWithinBounds from './utils/isWithinBounds'
+import hexagonToVector from './utils/hexagonToVector'
+import pieceInDirection from './utils/pieceInDirection'
+import { Hexagon, Piece, Color, WHITE, DEFAULT_POSITION } from './consts'
 
 export class HexChess {
-  protected _board: Map<Consts.Hexagon, Consts.Piece> = new Map()
-  protected _turn: Consts.Color = Consts.WHITE
-  protected _kings: Map<Consts.Color, Consts.Hexagon> = new Map()
-  protected _epHexagon: Consts.Hexagon | undefined = undefined
+  protected _board: Map<Hexagon, Piece> = new Map()
+  protected _turn: Color = WHITE
+  protected _kings: Map<Color, Hexagon> = new Map()
+  protected _epHexagon: Hexagon | undefined = undefined
   protected _halfMoves = 0
   protected _moveNumber = 0
   protected _positionCounts: Record<string, number> = {}
 
-  constructor(fen = Consts.DEFAULT_POSITION) {
+  constructor(fen = DEFAULT_POSITION) {
     this.load(fen)
   }
 
-  clear() {
-    this._board = new Map()
-    this._kings = new Map()
-    this._turn = Consts.WHITE
-    this._epHexagon = undefined
-    this._halfMoves = 0
-    this._moveNumber = 1
+  public load = load
+  public move = move
+  public ascii = ascii
+
+  protected _validateFen = validateFen
+  protected _put = put
+  protected _possibleMoves = possibleMoves
+  protected _kingInCheck = kingInCheck
+  protected _pieceInDirection = pieceInDirection
+  protected _vectorToHexagon = vectorToHexagon
+  protected _hexagonToVector = hexagonToVector
+  protected _isWithinBounds = isWithinBounds
+  protected _clear = clear
+
+  getBoard(): Map<Hexagon, Piece> {
+    return this._board
   }
 
-  public load = load;
-  public move = move;
-  public ascii = ascii;
-
-  protected _validateFen = validateFen;
-  protected _put = put;
-  protected _possibleMoves = possibleMoves;
-  protected _kingInCheck = kingInCheck;
-  protected _pieceInDirection = pieceInDirection;
-  protected _vectorToHexagon = vectorToHexagon;
-  protected _hexagonToVector = hexagonToVector;
-  protected _isWithinBounds = isWithinBounds;
-
-  getBoard(): Map<Consts.Hexagon, Consts.Piece> {
-    return this._board;
+  getTurn(): Color {
+    return this._turn
   }
 
-  getTurn(): Consts.Color {
-    return this._turn;
+  getKings(): Map<Color, Hexagon> {
+    return this._kings
   }
 
-  getKings(): Map<Consts.Color, Consts.Hexagon> {
-    return this._kings;
-  }
-
-  getEpHexagon(): Consts.Hexagon | undefined {
-    return this._epHexagon;
+  getEpHexagon(): Hexagon | undefined {
+    return this._epHexagon
   }
 
   getHalfMoves(): number {
-    return this._halfMoves;
+    return this._halfMoves
   }
 
   getMoveNumber(): number {
-    return this._moveNumber;
+    return this._moveNumber
   }
 }

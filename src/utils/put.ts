@@ -1,11 +1,11 @@
-import { HexChess } from "./../hexchess"
-import * as Consts from './../consts'
+import { Hexagon, Piece, KING } from '../consts'
+import { HexChess } from './../hexchess'
 
-function put(this: HexChess, hexagon: Consts.Hexagon, piece: Consts.Piece) {
-    if (piece.type == Consts.KING) {
-      this._kings.set(piece.color, hexagon)
-    }
-    this._board.set(hexagon, piece)
+function put(this: HexChess, hexagon: Hexagon, piece: Piece) {
+  if (piece.type == KING) {
+    this._kings.set(piece.color, hexagon)
   }
+  this._board.set(hexagon, piece)
+}
 
-  export default put;
+export default put
