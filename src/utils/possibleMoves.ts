@@ -8,7 +8,7 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
   if (piece == undefined) {
     return []
   }
-  const validMoves = new Array<Vector>()
+  const moves = new Array<Vector>()
 
   switch (piece?.type) {
     case 'p':
@@ -74,7 +74,7 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
           }
         }
 
-        validMoves.push(move)
+        moves.push(move)
       })
       break
 
@@ -89,7 +89,7 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
           return false
         }
 
-        validMoves.push(move)
+        moves.push(move)
       })
       break
 
@@ -101,14 +101,14 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
           const blockingPiece = this._pieceInDirection(position, multiple)
           if (blockingPiece != undefined) {
             if (blockingPiece.color != piece.color) {
-              validMoves.push(multiple)
+              moves.push(multiple)
             }
             return false
           }
           if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
             return
           }
-          validMoves.push(multiple)
+          moves.push(multiple)
           i++
         }
       })
@@ -122,14 +122,14 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
           const blockingPiece = this._pieceInDirection(position, multiple)
           if (blockingPiece != undefined) {
             if (blockingPiece.color != piece.color) {
-              validMoves.push(multiple)
+              moves.push(multiple)
             }
             return false
           }
           if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
             return
           }
-          validMoves.push(multiple)
+          moves.push(multiple)
           i++
         }
       })
@@ -143,14 +143,14 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
           const blockingPiece = this._pieceInDirection(position, multiple)
           if (blockingPiece != undefined) {
             if (blockingPiece.color != piece.color) {
-              validMoves.push(multiple)
+              moves.push(multiple)
             }
             return false
           }
           if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
             return
           }
-          validMoves.push(multiple)
+          moves.push(multiple)
           i++
         }
       })
@@ -165,26 +165,27 @@ function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
         const blockingPiece = this._pieceInDirection(position, move)
         if (blockingPiece != undefined) {
           if (blockingPiece.color != piece.color) {
-            validMoves.push(move)
+            moves.push(move)
           }
           return false
         }
 
-        validMoves.push(move)
+        moves.push(move)
       })
       break
   }
 
   // checking if moves cause check
   const nonCheckValidMoves: Array<Vector> = []
-  validMoves.forEach((move) => {
-    const dummyBoard = this._board
-    const dest = this._vectorToHexagon(position.clone().add(move) as Vector)
-    dummyBoard.set(dest, piece)
-    dummyBoard.delete(hexagon)
-    if (!this._kingInCheck(piece.color, dummyBoard)) {
+  moves.forEach((move) => {
+    this.move(
+      this._vectorToHexagon(position),
+      this._vectorToHexagon(position.clone().add(move) as Vector)
+    )
+    if (!this.inCheck()) {
       nonCheckValidMoves.push(move)
     }
+    this.undo()
   })
 
   return nonCheckValidMoves

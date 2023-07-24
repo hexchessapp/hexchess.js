@@ -1,5 +1,5 @@
-import { HEXAGONS, WHITE } from './consts'
-import { HexChess } from './hexchess'
+import { HEXAGONS, WHITE } from '../consts'
+import { HexChess } from '../hexchess'
 
 function ascii(this: HexChess): string {
   let s = ''
@@ -19,9 +19,7 @@ function ascii(this: HexChess): string {
     for (let j = 0; j < cols; j++) {
       const piece = this._board.get(HEXAGONS[currentHexagon])
       if (piece != undefined) {
-        q.push(
-          piece.color == WHITE ? piece.type.toUpperCase() : piece.type
-        )
+        q.push(piece.color == WHITE ? piece.type.toUpperCase() : piece.type)
       } else {
         q.push('.')
       }

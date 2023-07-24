@@ -46,6 +46,15 @@ export type Piece = {
   type: PieceSymbol
 }
 
+export interface History {
+  move: Move
+  kings: Record<Color, Vector>
+  turn: Color
+  epHex: Hexagon
+  halfMoves: number
+  moveNumber: number
+}
+
 export type Move = {
   color: Color
   from: Hexagon
@@ -53,6 +62,9 @@ export type Move = {
   piece: PieceSymbol
   captured?: PieceSymbol
   promotion?: PieceSymbol
+  flags: string
+  san: string
+  lan: string
   before: string
   after: string
 }

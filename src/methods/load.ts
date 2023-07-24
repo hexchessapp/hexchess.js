@@ -1,13 +1,13 @@
-import { Color, Hexagon, WHITE, BLACK, PieceSymbol, KING } from './consts'
-import { HexChess } from './hexchess'
+import { Color, Hexagon, WHITE, BLACK, PieceSymbol, KING } from '../consts'
+import { HexChess } from '../hexchess'
 
 function load(this: HexChess, fen: string) {
-  const err = this._validateFen(fen)
+  const err = this.validateFen(fen)
   if (err != undefined) {
     console.log(err)
   }
 
-  this._clear()
+  this.clear()
 
   const args = fen.split(' ')
   const positions = args[0].split('/')
@@ -17,7 +17,7 @@ function load(this: HexChess, fen: string) {
   const moveNumber = args[4]
 
   this._turn = turn as Color
-  this._epHexagon = ep == '-' ? undefined : (ep as Hexagon)
+  this._epHexagon = ep == '-' ? null : (ep as Hexagon)
   this._halfMoves = +halfMoves
   this._moveNumber = +moveNumber
 
@@ -30,15 +30,12 @@ function load(this: HexChess, fen: string) {
       if (isNaN(+itemS)) {
         rank++
         const hexagon = (fileLetter + rank) as Hexagon
-        this._put(hexagon, {
+        this.put(hexagon, {
           color: itemS == itemS.toUpperCase() ? WHITE : BLACK,
           type: itemS.toLowerCase() as PieceSymbol,
         })
         if (itemS.toLowerCase() == KING) {
-          this._kings.set(
-            itemS == itemS.toUpperCase() ? WHITE : BLACK,
-            hexagon
-          )
+          this._kings[itemS == itemS.toUpperCase() ? WHITE : BLACK] = hexagon
         }
       } else {
         rank += +itemS
