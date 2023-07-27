@@ -1,5 +1,4 @@
-import { BISHOP, BLACK, KNIGHT, PAWN, ROOK, WHITE } from '../src/consts'
-import { HexChess } from '../src/hexchess'
+import { BISHOP, BLACK, HexChess, KNIGHT, PAWN, ROOK, WHITE } from '../src/hexchess'
 
 test('inCheck lone-king', () => {
   const fen = '6/7/8/9/10/k4K5/10/9/8/7/6 w - 0 1'
