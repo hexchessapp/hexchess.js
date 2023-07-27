@@ -1,4 +1,4 @@
-function validateFen(fen: string) {
+function validateFen(fen: string): Error | null {
   // 1st criterion: 5 space-seperated fields?
   const tokens = fen.split(/\s+/)
   if (tokens.length !== 5) {
@@ -38,34 +38,14 @@ function validateFen(fen: string) {
   }
 
   // 7th criterion: every row is valid?
-  const ROW_SIZES = [6, 7, 8, 9, 10, 11, 10, 9, 8, 7, 6]
   for (let i = 0; i < rows.length; i++) {
     // check for right sum of fields AND not two numbers in succession
-    let sumFields = 0
-    let previousWasNumber = false
-
     for (let k = 0; k < rows[i].length; k++) {
-      if (!isNaN(+rows[i][k])) {
-        if (previousWasNumber) {
-          return new Error(
-            'Invalid FEN: piece data is invalid (consecutive number)'
-          )
-        }
-        sumFields += parseInt(rows[i][k], 10)
-        previousWasNumber = true
-      } else {
-        if (!/^[prnbqkPRNBQK]$/.test(rows[i][k])) {
-          return new Error('Invalid FEN: piece data is invalid (invalid piece)')
-        }
-        sumFields += 1
-        previousWasNumber = false
+      if (!/^[prnbqkPRNBQK]|[0-9]$/.test(rows[i][k])) {
+        return new Error('Invalid FEN: piece data is invalid (invalid piece)')
       }
     }
-    if (sumFields !== ROW_SIZES[i]) {
-      return new Error(
-        'Invalid FEN: piece data is invalid (too many squares in rank)'
-      )
-    }
+    // needs check for total squares in row
   }
 
   // 8th criterion: does chess position contain exact two kings?
@@ -84,7 +64,7 @@ function validateFen(fen: string) {
     }
   }
 
-  return
+  return null
 }
 
 export default validateFen

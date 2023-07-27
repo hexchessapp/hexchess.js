@@ -17,8 +17,8 @@ function ascii(this: HexChess): string {
       cols = 5
     }
     for (let j = 0; j < cols; j++) {
-      const piece = this._board.get(HEXAGONS[currentHexagon])
-      if (piece != undefined) {
+      const piece = this.get(HEXAGONS[currentHexagon])
+      if (piece != null) {
         q.push(piece.color == WHITE ? piece.type.toUpperCase() : piece.type)
       } else {
         q.push('.')

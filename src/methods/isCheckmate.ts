@@ -5,7 +5,7 @@ function isCheckmate(this: HexChess): boolean {
   if (king == null) {
     return false
   }
-  return this.isAttacked(king, this._turn) && this.moves().length == 0
+  return this.isAttacked(king) && this.moves().length == 0
 }
 
 export default isCheckmate

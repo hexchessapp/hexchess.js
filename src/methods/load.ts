@@ -1,10 +1,10 @@
 import { Color, Hexagon, WHITE, BLACK, PieceSymbol, KING } from '../consts'
 import { HexChess } from '../hexchess'
 
-function load(this: HexChess, fen: string) {
+function load(this: HexChess, fen: string): Error | null {
   const err = this.validateFen(fen)
-  if (err != undefined) {
-    console.log(err)
+  if (err != null) {
+    return err
   }
 
   this.clear()
@@ -43,7 +43,7 @@ function load(this: HexChess, fen: string) {
     }
   }
 
-  return
+  return null
 }
 
 export default load

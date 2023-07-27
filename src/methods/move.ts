@@ -9,14 +9,19 @@ function move(this: HexChess, from: Hexagon, to: Hexagon) {
     .clone()
     .subtract(this._hexagonToVector(from)) as Vector
   const piece = this.get(from)
-  if (piece == undefined) {
+  if (piece == null) {
     return
   }
+  const targetPiece = this.get(to)
   if (!legalMoves.includes(diff)) {
     return
   }
+
+  // make move
   this.put(to, piece)
-  this._board.delete(from)
+  this.remove(from)
+
+  // creating ep hexagon
   this._epHexagon = null
   if (piece.type == PAWN && diff.y == 2) {
     this._epHexagon = this._vectorToHexagon(
@@ -31,8 +36,8 @@ function move(this: HexChess, from: Hexagon, to: Hexagon) {
       color: piece.color,
       from: from,
       to: to,
-      piece: 'b',
-      captured: undefined,
+      piece: piece.type,
+      captured: targetPiece == null ? undefined : targetPiece.type,
       promotion: undefined,
       flags: '',
       san: '',
@@ -41,10 +46,10 @@ function move(this: HexChess, from: Hexagon, to: Hexagon) {
       after: ''
     },
     kings: this._kings,
-    turn: 'w',
-    epHex: 'f11',
-    halfMoves: 0,
-    moveNumber: 0
+    turn: this._turn,
+    epHex: this._epHexagon,
+    halfMoves: this._halfMoves,
+    moveNumber: this._moveNumber
   })
 }
 

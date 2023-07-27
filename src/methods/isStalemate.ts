@@ -20,7 +20,7 @@ function isStalemate(this: HexChess): boolean {
     moves += this._possibleMoves(HEXAGONS[i]).length
   }
   
-  return !this.isAttacked(king, this._turn) && moves == 0
+  return !this.isAttacked(king) && moves == 0
 }
 
 export default isStalemate

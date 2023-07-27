@@ -4,7 +4,7 @@ import { Vector } from 'vector2d'
 
 function possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
   const position = this._hexagonToVector(hexagon)
-  const piece = this._board.get(hexagon)
+  const piece = this.get(hexagon)
   if (piece == undefined) {
     return []
   }

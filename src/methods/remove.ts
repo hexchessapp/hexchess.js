@@ -1,4 +1,4 @@
-import { Hexagon, KING } from '../consts'
+import { Hexagon } from '../consts'
 import { HexChess } from '../hexchess'
 
 function remove(this: HexChess, hexagon: Hexagon) {

@@ -1,4 +1,4 @@
-import { Hexagon } from '../consts'
+import { HEXAGONS, Hexagon } from '../consts'
 import { HexChess } from './../hexchess'
 import { Vector } from 'vector2d'
 
@@ -7,12 +7,16 @@ function moves(this: HexChess, hexagon?: Hexagon): Array<Vector> {
     return this._possibleMoves(hexagon)
   }
   const moves = new Array<Vector>()
-  this._board.forEach((value, key) => {
-    if (value.color != this._turn) {
-      return
+  for (let i = 0; i < HEXAGONS.length; i++) {
+    const piece = this.get(HEXAGONS[i])
+    if (piece == null) {
+      continue
     }
-    moves.push(...this._possibleMoves(key))
-  })
+    if (piece.color != this._turn) {
+      continue
+    }
+    moves.push(...this._possibleMoves(HEXAGONS[i]))
+  }
   return moves
 }
 

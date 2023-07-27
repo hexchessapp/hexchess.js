@@ -2,10 +2,11 @@ import { HexChess } from '../hexchess'
 
 function inCheck(this: HexChess): boolean {
   const king = this._kings[this._turn]
-  if (king == undefined) {
+  if (king == null) {
     return false
   }
-  return this.isAttacked(king, this._turn)
+  const isInCheck = this.isAttacked(king)
+  return isInCheck
 }
 
 export default inCheck

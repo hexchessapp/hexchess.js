@@ -1,41 +1,39 @@
 import { Vector } from 'vector2d'
 import {
   BISHOP,
-  BLACK,
-  Color,
   Hexagon,
   KNIGHT,
   MOVES,
+  PAWN,
+  QUEEN,
   ROOK,
   WHITE,
 } from '../consts'
 import { HexChess } from '../hexchess'
 
-function isAttacked(this: HexChess, hex: Hexagon, color: Color): boolean {
+function isAttacked(this: HexChess, hex: Hexagon): boolean {
   let attacked = false
   const position = this._hexagonToVector(hex)
+  const piece = this.get(hex)
+  if (piece == null) {
+    return false
+  }
 
   // checking bishop
   MOVES.get(BISHOP)?.forEach((move) => {
     let i = 1
     while (true) {
       const multiple = move.clone().multiplyByScalar(i) as Vector
-      const blockingPiece = this._pieceInDirection(
-        position,
-        multiple,
-        this._board
-      )
-      if (blockingPiece != undefined) {
-        if (
-          blockingPiece.color == color &&
-          (blockingPiece.type == 'q' || blockingPiece.type == 'b')
-        ) {
-          attacked = true
-          return
-        }
+      if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
         return
       }
-      if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
+      const blockingPiece = this._pieceInDirection(position, multiple)
+      if (
+        blockingPiece != null &&
+        blockingPiece.color != piece.color &&
+        (blockingPiece.type == QUEEN || blockingPiece.type == BISHOP)
+      ) {
+        attacked = true
         return
       }
       i++
@@ -47,22 +45,16 @@ function isAttacked(this: HexChess, hex: Hexagon, color: Color): boolean {
     let i = 1
     while (true) {
       const multiple = move.clone().multiplyByScalar(i) as Vector
-      const blockingPiece = this._pieceInDirection(
-        position,
-        multiple,
-        this._board
-      )
-      if (blockingPiece != undefined) {
-        if (
-          blockingPiece.color == color &&
-          (blockingPiece.type == 'q' || blockingPiece.type == 'r')
-        ) {
-          attacked = true
-          return
-        }
+      if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
         return
       }
-      if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
+      const blockingPiece = this._pieceInDirection(position, multiple)
+      if (
+        blockingPiece != null &&
+        blockingPiece.color != piece.color &&
+        (blockingPiece.type == QUEEN || blockingPiece.type == ROOK)
+      ) {
+        attacked = true
         return
       }
       i++
@@ -75,70 +67,38 @@ function isAttacked(this: HexChess, hex: Hexagon, color: Color): boolean {
       return
     }
 
-    const blockingPiece = this._pieceInDirection(position, move, this._board)
+    const blockingPiece = this._pieceInDirection(position, move)
     if (
-      blockingPiece != undefined &&
-      blockingPiece.color == color &&
-      blockingPiece.type == ROOK
+      blockingPiece != null &&
+      blockingPiece.color != piece.color &&
+      blockingPiece.type == KNIGHT
     ) {
       attacked = true
     }
   })
 
   // checking pawn
-  let blockingPiece
-  if (color == BLACK) {
-    blockingPiece = this._pieceInDirection(
-      position,
-      new Vector(1, 1),
-      this._board
-    )
-    if (
-      blockingPiece != undefined &&
-      blockingPiece.color == BLACK &&
-      blockingPiece.type == 'p'
-    ) {
-      attacked = true
-    }
-    blockingPiece = this._pieceInDirection(
-      position,
-      new Vector(-1, 0),
-      this._board
-    )
-    if (
-      blockingPiece != undefined &&
-      blockingPiece.color == BLACK &&
-      blockingPiece.type == 'p'
-    ) {
-      attacked = true
-    }
+  let attackVectors
+  if (piece.color == WHITE) {
+    attackVectors = [new Vector(1, 1), new Vector(-1, 0)]
+  } else {
+    attackVectors = [new Vector(1, 0), new Vector(-1, -1)]
   }
-  if (color == WHITE) {
-    blockingPiece = this._pieceInDirection(
-      position,
-      new Vector(1, 0),
-      this._board
-    )
+
+  attackVectors.forEach((move) => {
+    if (!this._isWithinBounds(position.clone().add(move) as Vector)) {
+      return
+    }
+
+    const blockingPiece = this._pieceInDirection(position, move)
     if (
-      blockingPiece != undefined &&
-      blockingPiece.color == WHITE &&
-      blockingPiece.type == 'p'
+      blockingPiece != null &&
+      blockingPiece.color != piece.color &&
+      blockingPiece.type == PAWN
     ) {
       attacked = true
     }
-    blockingPiece = this._pieceInDirection(
-      position,
-      new Vector(-1, -1),
-      this._board
-    )
-    if (
-      blockingPiece != undefined &&
-      blockingPiece.color == WHITE &&
-      blockingPiece.type == 'p'
-    ) {
-      attacked = true
-    }
-  }
+  })
 
   return attacked
 }
