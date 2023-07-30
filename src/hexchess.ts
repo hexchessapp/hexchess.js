@@ -87,8 +87,8 @@ export type Move = {
   from: Hexagon
   to: Hexagon
   piece: PieceSymbol
-  captured?: PieceSymbol
-  promotion?: PieceSymbol
+  captured: PieceSymbol | null
+  promotion: PieceSymbol | null
   flags: string
   san: string
   lan: string
@@ -570,8 +570,8 @@ export class HexChess {
         from: from,
         to: to,
         piece: piece.type,
-        captured: targetPiece == null ? undefined : targetPiece.type,
-        promotion: undefined,
+        captured: targetPiece ? targetPiece.type : null,
+        promotion: null,
         flags: '',
         san: '',
         lan: '',
@@ -593,10 +593,12 @@ export class HexChess {
   moves(hexagon?: Hexagon): Hexagon[] {
     if (hexagon) {
       return this._possibleMoves(hexagon).map((value) =>
-        this._vectorToHexagon(value)
+        this._vectorToHexagon(
+          this._hexagonToVector(hexagon).clone().add(value) as Vector
+        )
       )
     }
-    const moves = new Array<Vector>()
+    const moves: Hexagon[] = []
     for (let i = 0; i < HEXAGONS.length; i++) {
       const piece = this.get(HEXAGONS[i])
       if (piece == null) {
@@ -605,9 +607,15 @@ export class HexChess {
       if (piece.color != this._turn) {
         continue
       }
-      moves.push(...this._possibleMoves(HEXAGONS[i]))
+      moves.push(
+        ...this._possibleMoves(HEXAGONS[i]).map((value) =>
+          this._vectorToHexagon(
+            this._hexagonToVector(HEXAGONS[i]).clone().add(value) as Vector
+          )
+        )
+      )
     }
-    return moves.map((value) => this._vectorToHexagon(value))
+    return moves
   }
 
   pgn() {
@@ -735,7 +743,7 @@ export class HexChess {
   private _possibleMoves(hexagon: Hexagon): Array<Vector> {
     const position = this._hexagonToVector(hexagon)
     const piece = this.get(hexagon)
-    if (piece == undefined) {
+    if (piece == null) {
       return []
     }
     const moves = new Array<Vector>()
@@ -765,15 +773,14 @@ export class HexChess {
           // isStandardBlocked
           if (move.clone().abs().equals(new Vector(0, 1))) {
             const blockingPiece = this._pieceInDirection(position, move)
-            if (blockingPiece != undefined) {
+            if (blockingPiece != null) {
               return false
             }
           } else if (Math.abs(move.y) != 2) {
             // diag take
             const blockingPiece = this._pieceInDirection(position, move)
             if (
-              (blockingPiece == undefined ||
-                blockingPiece.color == piece.color) &&
+              (blockingPiece == null || blockingPiece.color == piece.color) &&
               hexagon != this._epHexagon
             ) {
               return false
@@ -800,7 +807,7 @@ export class HexChess {
               move.clone().divideByScalar(2) as Vector
             )
             const blockingPiece2 = this._pieceInDirection(position, move)
-            if (blockingPiece1 != undefined || blockingPiece2 != undefined) {
+            if (blockingPiece1 != null || blockingPiece2 != null) {
               return false
             }
           }
@@ -816,10 +823,7 @@ export class HexChess {
           }
 
           const blockingPiece = this._pieceInDirection(position, move)
-          if (
-            blockingPiece != undefined &&
-            blockingPiece.color == piece.color
-          ) {
+          if (blockingPiece != null && blockingPiece.color == piece.color) {
             return false
           }
 
@@ -833,7 +837,7 @@ export class HexChess {
           while (true) {
             const multiple = move.clone().multiplyByScalar(i) as Vector
             const blockingPiece = this._pieceInDirection(position, multiple)
-            if (blockingPiece != undefined) {
+            if (blockingPiece != null) {
               if (blockingPiece.color != piece.color) {
                 moves.push(multiple)
               }
@@ -856,7 +860,7 @@ export class HexChess {
           while (true) {
             const multiple = move.clone().multiplyByScalar(i) as Vector
             const blockingPiece = this._pieceInDirection(position, multiple)
-            if (blockingPiece != undefined) {
+            if (blockingPiece != null) {
               if (blockingPiece.color != piece.color) {
                 moves.push(multiple)
               }
@@ -879,7 +883,7 @@ export class HexChess {
           while (true) {
             const multiple = move.clone().multiplyByScalar(i) as Vector
             const blockingPiece = this._pieceInDirection(position, multiple)
-            if (blockingPiece != undefined) {
+            if (blockingPiece != null) {
               if (blockingPiece.color != piece.color) {
                 moves.push(multiple)
               }
@@ -903,7 +907,7 @@ export class HexChess {
           }
 
           const blockingPiece = this._pieceInDirection(position, move)
-          if (blockingPiece != undefined) {
+          if (blockingPiece != null) {
             if (blockingPiece.color != piece.color) {
               moves.push(move)
             }
