@@ -1,5 +1,8 @@
 # hexchess.js
 
+> **Warning**
+> This package is in alpha and is missing core functionality and thorough testing!
+
 hexchess.js is a TypeScript chess library used for hexagonal chess move
 generation/validation, piece placement/movement, and check/checkmate/stalemate
 detection - basically everything but the AI.

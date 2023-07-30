@@ -914,14 +914,16 @@ export class HexChess {
     // checking if moves cause check
     const nonCheckValidMoves: Array<Vector> = []
     moves.forEach((move) => {
-      this.move(
-        this._vectorToHexagon(position),
-        this._vectorToHexagon(position.clone().add(move) as Vector)
+      this.put(
+        this._vectorToHexagon(position.clone().add(move) as Vector),
+        piece
       )
+      this.remove(this._vectorToHexagon(position))
       if (!this.inCheck()) {
         nonCheckValidMoves.push(move)
       }
-      this.undo()
+      this.remove(this._vectorToHexagon(position.clone().add(move) as Vector))
+      this.put(this._vectorToHexagon(position), piece)
     })
 
     return nonCheckValidMoves
