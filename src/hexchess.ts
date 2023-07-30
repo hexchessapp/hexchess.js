@@ -534,18 +534,19 @@ export class HexChess {
     return
   }
 
-  move(this: HexChess, from: Hexagon, to: Hexagon) {
+  move(from: Hexagon, to: Hexagon) {
     const legalMoves = this._possibleMoves(from)
-    const fromVector = this._hexagonToVector(to)
-    const diff = fromVector
-      .clone()
-      .subtract(this._hexagonToVector(from)) as Vector
+    const fromVector = this._hexagonToVector(from)
+    const toVector = this._hexagonToVector(to)
+    const diff = toVector.clone().subtract(fromVector) as Vector
+
     const piece = this.get(from)
     if (piece == null) {
       return
     }
     const targetPiece = this.get(to)
-    if (!legalMoves.includes(diff)) {
+
+    if (!legalMoves.some((item) => item.equals(diff))) {
       return
     }
 
@@ -781,8 +782,9 @@ export class HexChess {
           if (Math.abs(move.y) == 2) {
             if (
               piece.color == WHITE &&
-              Math.abs(+hexagon.substring(1) - 5) !=
-                -Math.abs(hexagon.substring(0, 1).charCodeAt(0) - 102)
+              !['b1', 'c2', 'd3', 'e4', 'f5', 'g4', 'h3', 'i2', 'j1'].includes(
+                hexagon
+              )
             ) {
               return
             }
