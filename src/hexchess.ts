@@ -295,11 +295,11 @@ export class HexChess {
     return s
   }
 
-  board() {
+  board(): Record<Hexagon, Piece | null> {
     return this._board
   }
 
-  clear() {
+  clear(): void {
     this._board = emptyBoard()
     this._kings = {
       w: null,
@@ -330,7 +330,7 @@ export class HexChess {
     ).join(' ')
   }
 
-  get(hex: Hexagon) {
+  get(hex: Hexagon): Piece | null {
     return this._board[hex]
   }
 
@@ -485,7 +485,7 @@ export class HexChess {
     return
   }
 
-  load(this: HexChess, fen: string): Error | null {
+  load(fen: string): Error | null {
     const err = this.validateFen(fen)
     if (err != null) {
       return err
@@ -534,7 +534,7 @@ export class HexChess {
     return
   }
 
-  move(from: Hexagon, to: Hexagon) {
+  move(from: Hexagon, to: Hexagon): void {
     const legalMoves = this._possibleMoves(from)
     const fromVector = this._hexagonToVector(from)
     const toVector = this._hexagonToVector(to)
@@ -586,13 +586,15 @@ export class HexChess {
     })
   }
 
-  moveNunber() {
+  moveNunber(): number {
     return this._moveNumber
   }
 
-  moves(this: HexChess, hexagon?: Hexagon): Array<Vector> {
+  moves(hexagon?: Hexagon): Hexagon[] {
     if (hexagon) {
-      return this._possibleMoves(hexagon)
+      return this._possibleMoves(hexagon).map((value) =>
+        this._vectorToHexagon(value)
+      )
     }
     const moves = new Array<Vector>()
     for (let i = 0; i < HEXAGONS.length; i++) {
@@ -605,21 +607,21 @@ export class HexChess {
       }
       moves.push(...this._possibleMoves(HEXAGONS[i]))
     }
-    return moves
+    return moves.map((value) => this._vectorToHexagon(value))
   }
 
   pgn() {
     return
   }
 
-  put(this: HexChess, hexagon: Hexagon, piece: Piece) {
+  put(hexagon: Hexagon, piece: Piece): void {
     if (piece.type == KING) {
       this._kings[piece.color] = hexagon
     }
     this._board[hexagon] = piece
   }
 
-  remove(this: HexChess, hexagon: Hexagon) {
+  remove(hexagon: Hexagon): void {
     this._board[hexagon] = null
   }
 
@@ -631,7 +633,7 @@ export class HexChess {
     return this._turn
   }
 
-  undo(this: HexChess) {
+  undo(this: HexChess): void {
     this._history.pop()
     if (this._history.length < 1) {
       return
@@ -730,7 +732,7 @@ export class HexChess {
     return null
   }
 
-  private _possibleMoves(this: HexChess, hexagon: Hexagon): Array<Vector> {
+  private _possibleMoves(hexagon: Hexagon): Array<Vector> {
     const position = this._hexagonToVector(hexagon)
     const piece = this.get(hexagon)
     if (piece == undefined) {
@@ -916,6 +918,9 @@ export class HexChess {
     // checking if moves cause check
     const nonCheckValidMoves: Array<Vector> = []
     moves.forEach((move) => {
+      const oldPiece = this.get(
+        this._vectorToHexagon(position.clone().add(move) as Vector)
+      )
       this.put(
         this._vectorToHexagon(position.clone().add(move) as Vector),
         piece
@@ -926,6 +931,12 @@ export class HexChess {
       }
       this.remove(this._vectorToHexagon(position.clone().add(move) as Vector))
       this.put(this._vectorToHexagon(position), piece)
+      if (oldPiece) {
+        this.put(
+          this._vectorToHexagon(position.clone().add(move) as Vector),
+          oldPiece
+        )
+      }
     })
 
     return nonCheckValidMoves
