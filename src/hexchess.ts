@@ -40,6 +40,7 @@ export const KING = 'k'
 export type Color = 'w' | 'b'
 export type PieceSymbol = 'p' | 'n' | 'b' | 'r' | 'q' | 'k'
 export type MoveSymbol = 'm' | 'c'
+export type BoardColor = 'w' | 'g' | 'b'
 
 // prettier-ignore
 export type Hexagon =
@@ -242,6 +243,43 @@ export const emptyBoard = (): Record<Hexagon, Piece | null> => {
   }
 }
 
+export function vectorToHexagon(vector: Vector): Hexagon {
+  const file = String.fromCharCode(vector.x + 102)
+  let rank = vector.y + 6
+
+  if (vector.x > 0) {
+    rank -= vector.x
+  }
+
+  return (file + rank) as Hexagon
+}
+
+export function hexagonToVector(hexagon: Hexagon): Vector {
+  const fileOffset = hexagon.substring(0, 1).charCodeAt(0) - 102
+  const rankOffset = +hexagon.substring(1) - 6
+
+  const vector = new Vector(fileOffset, rankOffset)
+
+  if (fileOffset > 0) {
+    vector.y += fileOffset
+  }
+
+  return vector
+}
+
+export function getHexColor(hex: Hexagon): BoardColor {
+  const vec = hexagonToVector(hex)
+  const hash = (vec.x + vec.y + 1) % 3
+  let color: BoardColor = 'b'
+  if (hash == 1 || hash == -2) {
+    color = 'g'
+  }
+  if (hash == 2 || hash == -1) {
+    color = 'w'
+  }
+  return color
+}
+
 export class HexChess {
   private _board: Record<Hexagon, Piece | null> = emptyBoard()
   private _turn: Color = WHITE
@@ -349,7 +387,7 @@ export class HexChess {
 
   isAttacked(hex: Hexagon): boolean {
     let attacked = false
-    const position = this._hexagonToVector(hex)
+    const position = hexagonToVector(hex)
     const piece = this.get(hex)
     if (piece == null) {
       return false
@@ -536,8 +574,8 @@ export class HexChess {
 
   move(from: Hexagon, to: Hexagon): void {
     const legalMoves = this._possibleMoves(from)
-    const fromVector = this._hexagonToVector(from)
-    const toVector = this._hexagonToVector(to)
+    const fromVector = hexagonToVector(from)
+    const toVector = hexagonToVector(to)
     const diff = toVector.clone().subtract(fromVector) as Vector
 
     const piece = this.get(from)
@@ -557,7 +595,7 @@ export class HexChess {
     // creating ep hexagon
     this._epHexagon = null
     if (piece.type == PAWN && diff.y == 2) {
-      this._epHexagon = this._vectorToHexagon(
+      this._epHexagon = vectorToHexagon(
         fromVector
           .clone()
           .add(new Vector(0, piece.color == WHITE ? 1 : -1)) as Vector
@@ -593,9 +631,7 @@ export class HexChess {
   moves(hexagon?: Hexagon): Hexagon[] {
     if (hexagon) {
       return this._possibleMoves(hexagon).map((value) =>
-        this._vectorToHexagon(
-          this._hexagonToVector(hexagon).clone().add(value) as Vector
-        )
+        vectorToHexagon(hexagonToVector(hexagon).clone().add(value) as Vector)
       )
     }
     const moves: Hexagon[] = []
@@ -609,8 +645,8 @@ export class HexChess {
       }
       moves.push(
         ...this._possibleMoves(HEXAGONS[i]).map((value) =>
-          this._vectorToHexagon(
-            this._hexagonToVector(HEXAGONS[i]).clone().add(value) as Vector
+          vectorToHexagon(
+            hexagonToVector(HEXAGONS[i]).clone().add(value) as Vector
           )
         )
       )
@@ -741,7 +777,7 @@ export class HexChess {
   }
 
   private _possibleMoves(hexagon: Hexagon): Array<Vector> {
-    const position = this._hexagonToVector(hexagon)
+    const position = hexagonToVector(hexagon)
     const piece = this.get(hexagon)
     if (piece == null) {
       return []
@@ -923,21 +959,18 @@ export class HexChess {
     const nonCheckValidMoves: Array<Vector> = []
     moves.forEach((move) => {
       const oldPiece = this.get(
-        this._vectorToHexagon(position.clone().add(move) as Vector)
+        vectorToHexagon(position.clone().add(move) as Vector)
       )
-      this.put(
-        this._vectorToHexagon(position.clone().add(move) as Vector),
-        piece
-      )
-      this.remove(this._vectorToHexagon(position))
+      this.put(vectorToHexagon(position.clone().add(move) as Vector), piece)
+      this.remove(vectorToHexagon(position))
       if (!this.inCheck()) {
         nonCheckValidMoves.push(move)
       }
-      this.remove(this._vectorToHexagon(position.clone().add(move) as Vector))
-      this.put(this._vectorToHexagon(position), piece)
+      this.remove(vectorToHexagon(position.clone().add(move) as Vector))
+      this.put(vectorToHexagon(position), piece)
       if (oldPiece) {
         this.put(
-          this._vectorToHexagon(position.clone().add(move) as Vector),
+          vectorToHexagon(position.clone().add(move) as Vector),
           oldPiece
         )
       }
@@ -952,32 +985,8 @@ export class HexChess {
     to: Vector
   ): Piece | null {
     const blockingPosition = from.clone().add(to) as Vector
-    const blockingHexagon = this._vectorToHexagon(blockingPosition)
+    const blockingHexagon = vectorToHexagon(blockingPosition)
     return this.get(blockingHexagon)
-  }
-
-  private _vectorToHexagon(vector: Vector): Hexagon {
-    const file = String.fromCharCode(vector.x + 102)
-    let rank = vector.y + 6
-
-    if (vector.x > 0) {
-      rank -= vector.x
-    }
-
-    return (file + rank) as Hexagon
-  }
-
-  private _hexagonToVector(hexagon: Hexagon): Vector {
-    const fileOffset = hexagon.substring(0, 1).charCodeAt(0) - 102
-    const rankOffset = +hexagon.substring(1) - 6
-
-    const vector = new Vector(fileOffset, rankOffset)
-
-    if (fileOffset > 0) {
-      vector.y += fileOffset
-    }
-
-    return vector
   }
 
   private _isWithinBounds(coord: Vector): boolean {
