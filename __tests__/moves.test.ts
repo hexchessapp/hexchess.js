@@ -1,5 +1,31 @@
 import { HexChess } from '../src/hexchess'
 
+test('moves pawn start', () => {
+  const chess = new HexChess()
+  expect(chess.moves('g4').sort()).toEqual(['g5', 'g6'].sort())
+})
+
+test('moves pawn later', () => {
+  const chess = new HexChess()
+  chess.move('i2', 'i3')
+  expect(chess.moves('i3').sort()).toEqual(['i4'].sort())
+})
+
+test('moves knight', () => {
+  const chess = new HexChess()
+  expect(chess.moves('d1').sort()).toEqual(['b2', 'c3', 'f4', 'g2'].sort())
+})
+
+test('moves bishop', () => {
+  const chess = new HexChess()
+  expect(chess.moves('f2').sort()).toEqual(['b6', 'c5', 'd4', 'e3', 'g3', 'h4', 'i5', 'j6'].sort())
+})
+
+test('moves rook', () => {
+  const chess = new HexChess()
+  expect(chess.moves('i1')).toEqual(['h2', 'g3', 'f4'])
+})
+
 test('moves board state maintained', () => {
   const chess = new HexChess()
   chess.move('f2', 'i5')
