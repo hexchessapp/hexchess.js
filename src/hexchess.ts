@@ -387,6 +387,7 @@ export class HexChess {
 
   isAttacked(hex: Hexagon): boolean {
     let attacked = false
+
     const position = hexagonToVector(hex)
     const piece = this.get(hex)
     if (piece == null) {
@@ -395,43 +396,53 @@ export class HexChess {
 
     // checking bishop
     MOVES.get(BISHOP)?.forEach((move) => {
-      let i = 1
+      let i = 0
       while (true) {
+        i++
         const multiple = move.clone().multiplyByScalar(i) as Vector
         if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
           return
         }
         const blockingPiece = this._pieceInDirection(position, multiple)
+        if (blockingPiece == null) {
+          continue
+        }
+        if (blockingPiece.color == piece.color) {
+          return
+        }
         if (
-          blockingPiece != null &&
           blockingPiece.color != piece.color &&
           (blockingPiece.type == QUEEN || blockingPiece.type == BISHOP)
         ) {
           attacked = true
           return
         }
-        i++
       }
     })
 
     // checking rook
     MOVES.get(ROOK)?.forEach((move) => {
-      let i = 1
+      let i = 0
       while (true) {
+        i++
         const multiple = move.clone().multiplyByScalar(i) as Vector
         if (!this._isWithinBounds(position.clone().add(multiple) as Vector)) {
           return
         }
         const blockingPiece = this._pieceInDirection(position, multiple)
+        if (blockingPiece == null) {
+          continue
+        }
+        if (blockingPiece.color == piece.color) {
+          return
+        }
         if (
-          blockingPiece != null &&
           blockingPiece.color != piece.color &&
           (blockingPiece.type == QUEEN || blockingPiece.type == ROOK)
         ) {
           attacked = true
           return
         }
-        i++
       }
     })
 

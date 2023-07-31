@@ -35,6 +35,12 @@ test('moves black queen', () => {
   )
 })
 
+test('moves pseudo check false color check', () => {
+  const chess = new HexChess()
+  chess.move('e1', 'a5')
+  expect(chess.moves('f7').sort()).toEqual(['f6'].sort())
+})
+
 test('moves board state maintained', () => {
   const chess = new HexChess()
   chess.move('f2', 'i5')
