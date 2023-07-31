@@ -1,4 +1,4 @@
-import { HexChess } from '../src/hexchess'
+import { BLACK, HexChess, WHITE } from '../src/hexchess'
 
 test('move knight', () => {
   const chess = new HexChess()
@@ -58,6 +58,7 @@ test('move white pawn double', () => {
 
 test('move black pawn', () => {
   const chess = new HexChess()
+  chess.move('g4', 'g5')
   chess.move('g7', 'g6')
   expect(chess.get('g7')).toEqual(null)
   expect(chess.get('g6')).toEqual({ color: 'b', type: 'p' })
@@ -65,7 +66,20 @@ test('move black pawn', () => {
 
 test('move black pawn double', () => {
   const chess = new HexChess()
+  chess.move('e4', 'e5')
   chess.move('g7', 'g5')
   expect(chess.get('g7')).toEqual(null)
   expect(chess.get('g5')).toEqual({ color: 'b', type: 'p' })
+})
+
+test('move changes values', () => {
+  const chess = new HexChess()
+  expect(chess.turn()).toEqual(WHITE)
+  expect(chess.moveNunber()).toEqual(1)
+  chess.move('g4', 'g5')
+  expect(chess.turn()).toEqual(BLACK)
+  expect(chess.moveNunber()).toEqual(1)
+  chess.move('f10', 'i4')
+  expect(chess.turn()).toEqual(WHITE)
+  expect(chess.moveNunber()).toEqual(2)
 })

@@ -18,12 +18,21 @@ test('moves knight', () => {
 
 test('moves bishop', () => {
   const chess = new HexChess()
-  expect(chess.moves('f2').sort()).toEqual(['b6', 'c5', 'd4', 'e3', 'g3', 'h4', 'i5', 'j6'].sort())
+  expect(chess.moves('f2').sort()).toEqual(
+    ['b6', 'c5', 'd4', 'e3', 'g3', 'h4', 'i5', 'j6'].sort()
+  )
 })
 
 test('moves rook', () => {
   const chess = new HexChess()
-  expect(chess.moves('i1')).toEqual(['h2', 'g3', 'f4'])
+  expect(chess.moves('i1').sort()).toEqual(['h2', 'g3', 'f4'].sort())
+})
+
+test('moves black queen', () => {
+  const chess = new HexChess()
+  expect(chess.moves('e10').sort()).toEqual(
+    ['c6', 'a2', 'd8', 'b4', 'e9', 'e8'].sort()
+  )
 })
 
 test('moves board state maintained', () => {

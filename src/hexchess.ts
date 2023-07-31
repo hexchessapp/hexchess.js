@@ -582,6 +582,11 @@ export class HexChess {
     if (piece == null) {
       return
     }
+
+    if (piece.color != this._turn) {
+      return
+    }
+
     const targetPiece = this.get(to)
 
     if (!legalMoves.some((item) => item.equals(diff))) {
@@ -622,6 +627,12 @@ export class HexChess {
       halfMoves: this._halfMoves,
       moveNumber: this._moveNumber,
     })
+
+    this._halfMoves++
+    if (this._turn == BLACK) {
+      this._moveNumber++
+    }
+    this._turn = this._turn == WHITE ? BLACK : WHITE
   }
 
   moveNunber(): number {
@@ -963,7 +974,11 @@ export class HexChess {
       )
       this.put(vectorToHexagon(position.clone().add(move) as Vector), piece)
       this.remove(vectorToHexagon(position))
-      if (!this.inCheck()) {
+      const king = this._kings[piece.color]
+      if (king == null) {
+        return false
+      }
+      if (!this.isAttacked(king)) {
         nonCheckValidMoves.push(move)
       }
       this.remove(vectorToHexagon(position.clone().add(move) as Vector))
