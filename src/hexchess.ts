@@ -372,8 +372,8 @@ export class HexChess {
     return this._board[hex]
   }
 
-  history() {
-    return
+  history(): History[] {
+    return this._history
   }
 
   inCheck(): boolean {
