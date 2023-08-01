@@ -25,7 +25,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { after } from 'node:test'
 import { Vector } from 'vector2d'
 
 export const WHITE = 'w'

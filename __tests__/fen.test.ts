@@ -1,4 +1,4 @@
-import { DEFAULT_POSITION, HexChess } from '../src/hexchess'
+import { HexChess } from '../src/hexchess'
 
 test('fen default', () => {
   const chess = new HexChess()
