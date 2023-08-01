@@ -25,6 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { after } from 'node:test'
 import { Vector } from 'vector2d'
 
 export const WHITE = 'w'
@@ -72,15 +73,6 @@ export const DEFAULT_POSITION =
 export type Piece = {
   color: Color
   type: PieceSymbol
-}
-
-export interface History {
-  move: Move
-  kings: Record<Color, Hexagon | null>
-  turn: Color
-  epHex: Hexagon | null
-  halfMoves: number
-  moveNumber: number
 }
 
 export type Move = {
@@ -290,7 +282,7 @@ export class HexChess {
   private _epHexagon: Hexagon | null = null
   private _halfMoves = 0
   private _moveNumber = 1
-  private _history: History[] = []
+  private _history: Move[] = []
 
   constructor(fen = DEFAULT_POSITION) {
     const err = this.load(fen)
@@ -351,16 +343,50 @@ export class HexChess {
   }
 
   fen(): string {
-    const board = new Array<string>()
     const turn = this._turn
     const ep = this._epHexagon ? this._epHexagon : '-'
     const halfMoves = this._halfMoves.toString()
     const moveNumber = this._moveNumber.toString()
 
-    // const sorted = new Map([...this._board.entries()].sort())
+    const files = new Array<Array<string>>([])
+    HEXAGONS.forEach((hex) => {
+      const file = hex.substring(0, 1).charCodeAt(0) - 97
+      const rank = +hex.substring(1) - 1
+      const piece = this._board[hex]
+      if (!piece) {
+        return
+      }
+      if (!files[file]) {
+        files[file] = []
+      }
+      files[file][rank] =
+        piece.color == WHITE ? piece.type.toUpperCase() : piece.type
+    })
+
+    const filesStrings = new Array<string>()
+    for (let i = 0; i < 11; i++) {
+      let s = ''
+      let spaces = 0
+      const fileLength = 11 - Math.abs(i - 5)
+      for (let j = 0; j < fileLength; j++) {
+        if (!files[i] || !files[i][j]) {
+          spaces++
+          continue
+        }
+        if (spaces > 0) {
+          s += spaces.toString()
+          spaces = 0
+        }
+        s += files[i][j]
+      }
+      if (spaces > 0) {
+        s += spaces.toString()
+      }
+      filesStrings.push(s)
+    }
 
     return new Array<string>(
-      board.join('/'),
+      filesStrings.join('/'),
       turn,
       ep,
       halfMoves,
@@ -372,7 +398,7 @@ export class HexChess {
     return this._board[hex]
   }
 
-  history(): History[] {
+  history(): Move[] {
     return this._history
   }
 
@@ -604,11 +630,12 @@ export class HexChess {
       return
     }
 
+    const beforeFen = this.fen()
+
     // make move
     this.put(to, piece)
     this.remove(from)
 
-    // creating ep hexagon
     this._epHexagon = null
     if (piece.type == PAWN && diff.y == 2) {
       this._epHexagon = vectorToHexagon(
@@ -618,32 +645,27 @@ export class HexChess {
       )
     }
 
-    this._history.push({
-      move: {
-        color: piece.color,
-        from: from,
-        to: to,
-        piece: piece.type,
-        captured: targetPiece ? targetPiece.type : null,
-        promotion: null,
-        flags: '',
-        san: '',
-        lan: '',
-        before: '',
-        after: '',
-      },
-      kings: this._kings,
-      turn: this._turn,
-      epHex: this._epHexagon,
-      halfMoves: this._halfMoves,
-      moveNumber: this._moveNumber,
-    })
-
     this._halfMoves++
     if (this._turn == BLACK) {
       this._moveNumber++
     }
     this._turn = this._turn == WHITE ? BLACK : WHITE
+
+    const afterFen = this.fen()
+
+    this._history.push({
+      color: piece.color,
+      from: from,
+      to: to,
+      piece: piece.type,
+      captured: targetPiece ? targetPiece.type : null,
+      promotion: null,
+      flags: '',
+      san: '',
+      lan: '',
+      before: beforeFen,
+      after: afterFen,
+    })
   }
 
   moveNunber(): number {
@@ -700,33 +722,12 @@ export class HexChess {
   }
 
   undo(this: HexChess): void {
-    this._history.pop()
     if (this._history.length < 1) {
       return
     }
-    const lastMove = this._history[this._history.length - 2]
-
-    // undo move
-    this.put(lastMove.move.from, {
-      color: lastMove.move.color,
-      type: lastMove.move.piece,
-    })
-    this.remove(lastMove.move.to)
-
-    // replace captured piece
-    const captured = lastMove.move.captured
-    if (captured != null) {
-      this.put(lastMove.move.to, {
-        color: lastMove.move.color == WHITE ? BLACK : WHITE,
-        type: captured,
-      })
-    }
-
-    this._kings = lastMove.kings
-    this._turn = lastMove.turn
-    this._epHexagon = lastMove.epHex
-    this._halfMoves = lastMove.halfMoves
-    this._moveNumber = lastMove.moveNumber
+    const lastMove = this._history[this._history.length - 1]
+    this.load(lastMove.before)
+    this._history.pop()
   }
 
   validateFen(fen: string): Error | null {
