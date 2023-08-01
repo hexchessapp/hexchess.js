@@ -26,6 +26,7 @@
         "format": ["PascalCase"]
       }
     ],
-    "multiline-comment-style": ["error", "starred-block"]
+    "multiline-comment-style": ["error", "starred-block"],
+    "no-throw-literal": "error"
   }
 }

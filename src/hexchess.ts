@@ -293,7 +293,6 @@ export class HexChess {
   ascii(): string {
     let s = ''
     const MAX_LENGTH = 52
-    // each minor row
 
     let currentHexagon = 0
     for (let i = 10; i >= -10; i--) {
