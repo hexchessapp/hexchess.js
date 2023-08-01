@@ -720,13 +720,14 @@ export class HexChess {
     return this._turn
   }
 
-  undo(this: HexChess): void {
+  undo(): Move | null {
     if (this._history.length < 1) {
-      return
+      return null
     }
     const lastMove = this._history[this._history.length - 1]
-    this.load(lastMove.before)
+    this._loadWithHistory(lastMove.before, this._history)
     this._history.pop()
+    return lastMove
   }
 
   validateFen(fen: string): Error | null {
@@ -1025,5 +1026,14 @@ export class HexChess {
     }
 
     return true
+  }
+
+  private _loadWithHistory(fen: string, history: Move[]): Error | null {
+    const error = this.load(fen)
+    if (error != null) {
+      return error
+    }
+    this._history = history
+    return null
   }
 }

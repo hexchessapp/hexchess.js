@@ -1,6 +1,6 @@
 {
   "name": "hexchess.js",
-  "version": "0.0.4-alpha.0",
+  "version": "0.0.5-alpha.0",
   "license": "BSD-2-Clause",
   "main": "dist/cjs/hexchess.js",
   "module": "dist/esm/hexchess.js",
