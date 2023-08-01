@@ -666,7 +666,7 @@ export class HexChess {
     })
   }
 
-  moveNunber(): number {
+  moveNumber(): number {
     return this._moveNumber
   }
 
