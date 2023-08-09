@@ -271,6 +271,13 @@ export function getHexColor(hex: Hexagon): BoardColor {
   return color
 }
 
+function arrayEquals(a: Array<unknown>, b: Array<unknown>) {
+  return Array.isArray(a) &&
+    Array.isArray(b) &&
+    a.length === b.length &&
+    a.every((val, index) => val === b[index]);
+}
+
 export class HexChess {
   private _board: Record<Hexagon, Piece | null> = emptyBoard()
   private _turn: Color = WHITE
@@ -520,16 +527,41 @@ export class HexChess {
     return this.isAttacked(king) && this.moves().length == 0
   }
 
-  isDraw() {
-    return
+  isDraw(): boolean {
+    return this.isInsufficientMaterial() || this.isThreefoldRepetition() || this._halfMoves >= 100
   }
 
-  isInsufficientMaterial() {
-    return
+  isInsufficientMaterial(): boolean {
+    const piecesPerColor: Record<Color, Array<PieceSymbol>> = {w:[], b:[]}
+    HEXAGONS.forEach((hex) => {
+      const piece = this._board[hex]
+      if (!piece) {
+        return
+      }
+      piecesPerColor[piece.color].push(piece.type)
+    });
+    if (
+      piecesPerColor.w.length > 2 && piecesPerColor.w.length > 2 || 
+      piecesPerColor.b.length > 2 && piecesPerColor.b.length
+    ) {
+      return false
+    }
+    const whiteSorted = piecesPerColor.w.sort()
+    const blackSorted = piecesPerColor.b.sort()
+    if (
+      arrayEquals(whiteSorted, ['k']) && arrayEquals(blackSorted, ['k']) ||
+      arrayEquals(whiteSorted, ['k']) && arrayEquals(blackSorted, ['b', 'k']) ||
+      arrayEquals(whiteSorted, ['k']) && arrayEquals(blackSorted, ['k', 'n']) ||
+      arrayEquals(whiteSorted, ['b', 'k']) && arrayEquals(blackSorted, ['k']) ||
+      arrayEquals(whiteSorted, ['k', 'n']) && arrayEquals(blackSorted, ['k'])
+      ) {
+      return true
+    }
+    return false
   }
 
-  isGameOver() {
-    return
+  isGameOver(): boolean {
+    return this.isDraw() || this.isCheckmate() || this.isStalemate() || this.isThreefoldRepetition()
   }
 
   isStalemate(this: HexChess): boolean {
@@ -538,24 +570,28 @@ export class HexChess {
       return false
     }
 
-    let moves = 0
-
-    for (let i = 0; i < HEXAGONS.length; i++) {
-      const piece = this.get(HEXAGONS[i])
-      if (piece == null) {
-        continue
-      }
-      if (piece.color != this._turn) {
-        continue
-      }
-      moves += this._possibleMoves(HEXAGONS[i]).length
-    }
-
-    return !this.isAttacked(king) && moves == 0
+    return !this.isAttacked(king) && this.moves().length == 0
   }
 
-  isThreefoldRepetition() {
-    return
+  isThreefoldRepetition(): boolean {
+    const allStates = this._history.map((move) => {
+      return move.after.split(" ").slice(0, 2).join(" ")
+    })
+    const occurances = new Map<string, number>([])
+    allStates.forEach(state => {
+      const value = occurances.get(state)
+      if (!value) {
+        return occurances.set(state, 1)
+      }
+      occurances.set(state, value + 1)
+    });
+    let isRepetition = false
+    occurances.forEach((value) => {
+      if (value > 2) {
+        isRepetition = true
+      }
+    })
+    return isRepetition
   }
 
   load(fen: string): Error | null {
@@ -751,7 +787,7 @@ export class HexChess {
     }
 
     // 4th criterion: 4th field is a valid e.p.-string?
-    if (!/^(-|[bcdefghijk][7]|b1|c2|d3|e4|f5|g4|h3|i2|j1|)$/.test(tokens[2])) {
+    if (!/^(-|[bcdefghij][7]|b1|c2|d3|e4|f5|g4|h3|i2|j1|)$/.test(tokens[2])) {
       return new Error('Invalid FEN: en-passant square is invalid')
     }
 
