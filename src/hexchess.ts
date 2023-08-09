@@ -443,7 +443,7 @@ export class HexChess {
         }
         if (
           blockingPiece.color != piece.color &&
-          (blockingPiece.type == QUEEN || blockingPiece.type == BISHOP)
+          (blockingPiece.type == QUEEN || blockingPiece.type == BISHOP || (blockingPiece.type == KING && i == 1))
         ) {
           attacked = true
           return
@@ -469,7 +469,7 @@ export class HexChess {
         }
         if (
           blockingPiece.color != piece.color &&
-          (blockingPiece.type == QUEEN || blockingPiece.type == ROOK)
+          (blockingPiece.type == QUEEN || blockingPiece.type == ROOK || (blockingPiece.type == KING && i == 1))
         ) {
           attacked = true
           return
