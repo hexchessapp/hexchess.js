@@ -751,7 +751,7 @@ export class HexChess {
     }
 
     // 4th criterion: 4th field is a valid e.p.-string?
-    if (!/^(-|[bcdefghijk][7]|b1|c2|d3|e4|f5|g4|h3|i2|j1|)$/.test(tokens[2])) {
+    if (!/^(-|[bcdefghij][7]|b1|c2|d3|e4|f5|g4|h3|i2|j1|)$/.test(tokens[2])) {
       return new Error('Invalid FEN: en-passant square is invalid')
     }
 
