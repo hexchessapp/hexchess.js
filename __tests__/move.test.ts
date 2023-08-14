@@ -83,3 +83,14 @@ test('move changes values', () => {
   expect(chess.turn()).toEqual(WHITE)
   expect(chess.moveNumber()).toEqual(2)
 })
+
+test('move ep', () => {
+  const chess = new HexChess()
+  chess.move('f5', 'f6')
+  chess.move('g7', 'g5')
+  chess.move('f6', 'g6')
+  expect(chess.fen()).toEqual(
+    '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB3p1bbb/K2P1P3k/N1P3p1n/RP4pr/P5p/6 b - 3 2'
+  )
+  console.log(chess.ascii())
+})
