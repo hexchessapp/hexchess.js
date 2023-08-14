@@ -1,6 +1,6 @@
 import { HexChess } from '../src/hexchess'
 
-test('history', () => {
+test('undo', () => {
   const chess = new HexChess()
   chess.move('f2', 'h4')
   const lastMove = chess.undo()
@@ -22,7 +22,7 @@ test('history', () => {
   expect(chess.history().length).toEqual(0)
 })
 
-test('history', () => {
+test('undo 2', () => {
   const chess = new HexChess()
   chess.move('f2', 'h4')
   chess.move('f10', 'h6')

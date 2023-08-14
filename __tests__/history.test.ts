@@ -51,7 +51,7 @@ test('history 2', () => {
   const history = chess.history()
   expect(history[history.length - 1]).toEqual({
     after:
-      '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2Pp4k/N1P3p1n/RP4pr/2P3p/6 w - 2 2',
+      '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2Pp4k/N1P3p1n/RP4pr/2P3p/6 w g6 2 2',
     before:
       '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/2P3p/6 b j2 1 1',
     captured: null,
