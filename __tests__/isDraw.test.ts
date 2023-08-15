@@ -20,8 +20,14 @@ test('isDraw stalemate', () => {
 
 test('isDraw threefold', () => {
   const chess = new HexChess()
-  chess.move('f1', 'g2'); chess.move('f11', 'g9'); chess.move('g2', 'f1'); chess.move('g9', 'f11')
-  chess.move('f1', 'g2'); chess.move('f11', 'g9'); chess.move('g2', 'f1'); chess.move('g9', 'f11')
+  chess.move('f1', 'g2')
+  chess.move('f11', 'g9')
+  chess.move('g2', 'f1')
+  chess.move('g9', 'f11')
+  chess.move('f1', 'g2')
+  chess.move('f11', 'g9')
+  chess.move('g2', 'f1')
+  chess.move('g9', 'f11')
   chess.move('f1', 'g2')
   expect(chess.isDraw()).toEqual(true)
 })

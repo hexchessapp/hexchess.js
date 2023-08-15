@@ -66,6 +66,34 @@ export const WHITE_EP_HEXAGONS: Hexagon[] = [
   'j2',
 ]
 
+export const WHITE_PROMOTION_HEXAGONS: Hexagon[] = [
+  'a6',
+  'b7',
+  'c8',
+  'd9',
+  'e10',
+  'f11',
+  'g10',
+  'h9',
+  'i8',
+  'j7',
+  'k6',
+]
+
+export const BLACK_PROMOTION_HEXAGONS: Hexagon[] = [
+  'a1',
+  'b1',
+  'c1',
+  'd1',
+  'e1',
+  'f1',
+  'g1',
+  'h1',
+  'i1',
+  'j1',
+  'k1',
+]
+
 // prettier-ignore
 export type Hexagon =
                   'f11' |
@@ -685,7 +713,7 @@ export class HexChess {
     return
   }
 
-  move(from: Hexagon, to: Hexagon): void {
+  move(from: Hexagon, to: Hexagon, promotion?: PieceSymbol): void {
     const legalMoves = this._possibleMoves(from)
     const fromVector = hexagonToVector(from)
     const toVector = hexagonToVector(to)
@@ -711,6 +739,25 @@ export class HexChess {
     // make move
     this.put(to, piece)
     this.remove(from)
+
+    if (
+      piece.type == PAWN &&
+      ((piece.color == WHITE && WHITE_PROMOTION_HEXAGONS.includes(to)) ||
+        (piece.color == BLACK && BLACK_PROMOTION_HEXAGONS.includes(to)))
+    ) {
+      if (promotion && ['q', 'b', 'n', 'r'].includes(promotion)) {
+        this.remove(to)
+        this.put(to, { color: piece.color, type: promotion })
+      } else {
+        return
+      }
+    } else {
+      if (promotion && ['q', 'b', 'n', 'r'].includes(promotion)) {
+        this.put(from, piece)
+        this.remove(to)
+        return
+      }
+    }
 
     // if en passant
     if (to == this._epHexagon) {
@@ -746,7 +793,7 @@ export class HexChess {
       to: to,
       piece: piece.type,
       captured: targetPiece ? targetPiece.type : null,
-      promotion: null,
+      promotion: promotion ?? null,
       flags: '',
       san: '',
       lan: '',

@@ -1,4 +1,4 @@
-import { BLACK, HexChess, WHITE } from '../src/hexchess'
+import { BLACK, HexChess, QUEEN, WHITE } from '../src/hexchess'
 
 test('move knight', () => {
   const chess = new HexChess()
@@ -92,5 +92,24 @@ test('move ep', () => {
   expect(chess.fen()).toEqual(
     '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB3p1bbb/K2P1P3k/N1P3p1n/RP4pr/P5p/6 b - 3 2'
   )
-  console.log(chess.ascii())
+})
+
+test('move promotion', () => {
+  const chess = new HexChess()
+  chess.move('c2', 'c4')
+  chess.move('f11', 'g9')
+  chess.move('c4', 'c5')
+  chess.move('g9', 'f11')
+  chess.move('c5', 'c6')
+  chess.move('b7', 'b6')
+  chess.move('c6', 'b6')
+  chess.move('f11', 'g9')
+  chess.move('b6', 'b7', 'q')
+  expect(chess.get('b7')).toEqual({ color: WHITE, type: QUEEN })
+})
+
+test('move premature promotion', () => {
+  const chess = new HexChess()
+  chess.move('c2', 'c4', 'q')
+  expect(chess.history().length).toEqual(0)
 })
