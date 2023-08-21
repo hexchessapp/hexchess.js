@@ -724,13 +724,16 @@ export class HexChess {
     }
   }
 
-  loadPgn(pgn: string) {
+  loadPgn(pgn: string | string[]) {
     this.load(DEFAULT_POSITION)
-    if (pgn == '') {
-      return
+    let moves: string[] = []
+    if (Array.isArray(pgn)) {
+      moves = pgn
+    } else {
+      pgn = pgn.replace(/([0-9]+\.)*/g, '')
+      moves = pgn.trim().split(/\s+/g)
     }
-    pgn = pgn.replace(/([0-9]+\.)*/g, '')
-    const moves = pgn.trim().split(/\s+/g)
+
     moves.forEach((move) => {
       this.move(move)
     })
