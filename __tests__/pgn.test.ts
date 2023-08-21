@@ -50,7 +50,13 @@ test('pgn move into checkmate', () => {
 })
 
 test('pgn move into draw', () => {
-  const chess = new HexChess('5/7/8/9/10/K9k/10/9/8/7/6 w - 0 1')
+  const chess = new HexChess('6/7/8/9/10/K9k/10/9/8/7/6 w - 0 1')
   chess.move('f1', 'f2')
   expect(chess.pgn()).toEqual('1. Kf2 1/2-1/2')
+})
+
+test('png promotion', () => {
+  const chess = new HexChess('4P1/7/8/9/10/K9k/10/9/8/7/6 w - 0 1')
+  chess.move('a5', 'a6', 'q')
+  expect(chess.pgn()).toEqual('1. a6Q+')
 })
