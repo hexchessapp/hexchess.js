@@ -2,7 +2,7 @@ import { HexChess } from '../src/hexchess'
 
 test('history', () => {
   const chess = new HexChess()
-  chess.move('f2', 'h4')
+  chess.move({ from: 'f2', to: 'h4' })
   const history = chess.history()
   expect(history[history.length - 1]).toEqual({
     after:
@@ -23,8 +23,7 @@ test('history', () => {
 
 test('history', () => {
   const chess = new HexChess()
-
-  chess.move('j1', 'j3')
+  chess.move({ from: 'j1', to: 'j3' })
   const history = chess.history()
   expect(history[history.length - 1]).toEqual({
     after:
@@ -45,9 +44,8 @@ test('history', () => {
 
 test('history 2', () => {
   const chess = new HexChess()
-
-  chess.move('j1', 'j3')
-  chess.move('g7', 'g5')
+  chess.move({ from: 'j1', to: 'j3' })
+  chess.move({ from: 'g7', to: 'g5' })
   const history = chess.history()
   expect(history[history.length - 1]).toEqual({
     after:

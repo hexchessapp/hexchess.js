@@ -140,6 +140,12 @@ export type Move = {
   after: string
 }
 
+export type MoveObject = {
+  from: Hexagon
+  to: Hexagon
+  promotion?: PieceSymbol
+}
+
 // prettier-ignore
 export const HEXAGONS: Hexagon[] = [
                'f11',
@@ -675,10 +681,10 @@ export class HexChess {
     return isRepetition
   }
 
-  load(fen: string): Error | null {
+  load(fen: string): void {
     const err = this.validateFen(fen)
     if (err != null) {
-      return err
+      throw err
     }
 
     this.clear()
@@ -716,67 +722,95 @@ export class HexChess {
         }
       }
     }
-
-    return null
   }
 
-  loadPgn() {
-    return
+  loadPgn(pgn: string) {
+    this.load(DEFAULT_POSITION)
+    if (pgn == '') {
+      return
+    }
+    pgn = pgn.replace(/([0-9]+\.)*/g, '')
+    const moves = pgn.trim().split(/\s+/g)
+    moves.forEach((move) => {
+      this.move(move)
+    })
   }
 
-  move(from: Hexagon, to: Hexagon, promotion?: PieceSymbol): void {
-    const legalMoves = this._possibleMoves(from)
-    const fromVector = hexagonToVector(from)
-    const toVector = hexagonToVector(to)
+  move(move: string | MoveObject): void {
+    let moveObject: null | MoveObject
+    if (typeof move == 'string') {
+      moveObject = this._moveFromSan(move)
+    } else {
+      moveObject = move
+    }
+
+    if (!moveObject) {
+      throw new Error('Invalid move')
+    }
+
+    const legalMoves = this._possibleMoves(moveObject.from)
+    const fromVector = hexagonToVector(moveObject.from)
+    const toVector = hexagonToVector(moveObject.to)
     const diff = toVector.clone().subtract(fromVector) as Vector
 
-    const piece = this.get(from)
+    const piece = this.get(moveObject.from)
     if (piece == null) {
-      return
+      throw new Error('Invalid move: No piece at starting hex')
     }
 
     if (piece.color != this._turn) {
-      return
+      throw new Error('Invalid move: Not the correct turn')
     }
 
-    const targetPiece = this.get(to)
+    const targetPiece = this.get(moveObject.to)
 
     if (!legalMoves.some((item) => item.equals(diff))) {
-      return
+      throw new Error('Invalid move: Illegal')
     }
 
     const beforeFen = this.fen()
 
     // make move
-    this.put(to, piece)
-    this.remove(from)
+    this.put(moveObject.to, piece)
+    this.remove(moveObject.from)
 
     if (
       piece.type == PAWN &&
-      ((piece.color == WHITE && WHITE_PROMOTION_HEXAGONS.includes(to)) ||
-        (piece.color == BLACK && BLACK_PROMOTION_HEXAGONS.includes(to)))
+      ((piece.color == WHITE &&
+        WHITE_PROMOTION_HEXAGONS.includes(moveObject.to)) ||
+        (piece.color == BLACK &&
+          BLACK_PROMOTION_HEXAGONS.includes(moveObject.to)))
     ) {
-      if (promotion && ['q', 'b', 'n', 'r'].includes(promotion)) {
-        this.remove(to)
-        this.put(to, { color: piece.color, type: promotion })
+      if (
+        moveObject.promotion &&
+        ['q', 'b', 'n', 'r'].includes(moveObject.promotion)
+      ) {
+        this.remove(moveObject.to)
+        this.put(moveObject.to, {
+          color: piece.color,
+          type: moveObject.promotion,
+        })
       } else {
-        return
+        throw new Error('Invalid move: Invalid promotion piece')
       }
     } else {
-      if (promotion && ['q', 'b', 'n', 'r'].includes(promotion)) {
-        this.put(from, piece)
-        this.remove(to)
-        return
+      if (
+        moveObject.promotion &&
+        ['q', 'b', 'n', 'r'].includes(moveObject.promotion)
+      ) {
+        this.put(moveObject.from, piece)
+        this.remove(moveObject.to)
+        throw new Error('Invalid move: Premature promotion')
       }
     }
 
     // if en passant
     let wasEpCapture = false
-    if (to == this._epHexagon && piece.type == PAWN) {
+    if (moveObject.to == this._epHexagon && piece.type == PAWN) {
       wasEpCapture = true
       this.remove(
         vectorToHexagon(
-          hexagonToVector(to)
+          hexagonToVector(moveObject.to)
             .clone()
             .add(new Vector(0, piece.color == WHITE ? -1 : 1)) as Vector
         )
@@ -802,11 +836,11 @@ export class HexChess {
 
     this._history.push({
       color: piece.color,
-      from: from,
-      to: to,
+      from: moveObject.from,
+      to: moveObject.to,
       piece: piece.type,
       captured: targetPiece ? targetPiece.type : wasEpCapture ? 'p' : null,
-      promotion: promotion ?? null,
+      promotion: moveObject.promotion ?? null,
       flags: '',
       san: '',
       lan: '',
@@ -858,7 +892,11 @@ export class HexChess {
         pgn += chess.moveNumber() + '. '
       }
       pgn += chess._moveToSan(move)
-      chess.move(move.from, move.to, move.promotion ?? undefined)
+      chess.move({
+        from: move.from,
+        to: move.to,
+        promotion: move.promotion ?? undefined,
+      })
       if (chess.isGameOver()) {
         if (chess.isCheckmate()) {
           pgn += '#'
@@ -1300,5 +1338,72 @@ export class HexChess {
     }
 
     return san
+  }
+
+  private _moveFromSan(san: string): MoveObject {
+    const clean = this._stripSan(san)
+
+    const matches = clean.match(
+      /^([PNBRQK])?([a-k])?([1-9]|1[0-1])?x?([a-k]{1}(?:[1-9]|1[0-1])){1}([QRBN])?$/
+      //  piece     file?       rank?                  to               promotion?
+    )
+
+    if (!matches) {
+      throw new Error('Invalid SAN: Incorrect format' + san)
+    }
+
+    let piece: PieceSymbol | null = matches[1]
+      ? (matches[1].toLowerCase() as PieceSymbol)
+      : null
+    const fromFile = matches[2]
+    const fromRank = +matches[3]
+    const to = matches[4] as Hexagon
+    const promotion: PieceSymbol | null = matches[5]
+      ? (matches[1].toLowerCase() as PieceSymbol)
+      : null
+
+    if (!piece) {
+      piece = 'p'
+    }
+
+    const relevant: Hexagon[] = []
+    HEXAGONS.forEach((hex) => {
+      const boardPiece = this._board[hex]
+      if (
+        !boardPiece ||
+        boardPiece.type != piece ||
+        boardPiece.color != this._turn
+      ) {
+        return
+      }
+      const moves = this.moves(hex)
+      if (!moves.includes(to)) {
+        return
+      }
+      if (fromFile) {
+        if (hex.substring(0, 1) != fromFile) {
+          return
+        }
+      }
+      if (fromRank) {
+        if (+hex.substring(1) != fromRank) {
+          return
+        }
+      }
+      relevant.push(hex)
+    })
+
+    if (relevant.length == 0) {
+      throw new Error('Invalid SAN: No moves satisfy this requirement ' + san)
+    }
+    if (relevant.length > 1) {
+      throw new Error('Invalid SAN: Too ambiguous ' + san)
+    }
+
+    return { from: relevant[0], to: to, promotion: promotion ?? undefined }
+  }
+
+  private _stripSan(san: string): string {
+    return san.replace(/=/, '').replace(/[+#]?[?!]*$/, '')
   }
 }

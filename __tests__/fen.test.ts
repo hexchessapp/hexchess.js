@@ -9,7 +9,7 @@ test('fen default', () => {
 
 test('fen 1move ep', () => {
   const chess = new HexChess()
-  chess.move('j1', 'j3')
+  chess.move({ from: 'j1', to: 'j3' })
   expect(chess.fen()).toEqual(
     '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/2P3p/6 b j2 1 1'
   )
@@ -17,8 +17,8 @@ test('fen 1move ep', () => {
 
 test('fen 2move removed ep', () => {
   const chess = new HexChess()
-  chess.move('j1', 'j3')
-  chess.move('j7', 'j6')
+  chess.move({ from: 'j1', to: 'j3' })
+  chess.move({ from: 'j7', to: 'j6' })
   expect(chess.fen()).toEqual(
     '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/2P2p1/6 w - 2 2'
   )

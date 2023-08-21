@@ -2,7 +2,7 @@ import { HexChess } from '../src/hexchess'
 
 test('undo', () => {
   const chess = new HexChess()
-  chess.move('f2', 'h4')
+  chess.move({ from: 'f2', to: 'h4' })
   const lastMove = chess.undo()
   expect(lastMove).toEqual({
     after:
@@ -24,8 +24,8 @@ test('undo', () => {
 
 test('undo 2', () => {
   const chess = new HexChess()
-  chess.move('f2', 'h4')
-  chess.move('f10', 'h6')
+  chess.move({ from: 'f2', to: 'h4' })
+  chess.move({ from: 'f10', to: 'h6' })
   const lastMove = chess.undo()
   expect(lastMove).toEqual({
     after:

@@ -7,7 +7,7 @@ test('moves pawn start', () => {
 
 test('moves pawn later', () => {
   const chess = new HexChess()
-  chess.move('i2', 'i3')
+  chess.move({ from: 'i2', to: 'i3' })
   expect(chess.moves('i3').sort()).toEqual(['i4'].sort())
 })
 
@@ -37,13 +37,13 @@ test('moves black queen', () => {
 
 test('moves pseudo check false color check', () => {
   const chess = new HexChess()
-  chess.move('e1', 'a5')
+  chess.move({ from: 'e1', to: 'a5' })
   expect(chess.moves('f7').sort()).toEqual(['f6'].sort())
 })
 
 test('moves board state maintained', () => {
   const chess = new HexChess()
-  chess.move('f2', 'i5')
+  chess.move({ from: 'f2', to: 'i5' })
   chess.moves('i5')
   expect(chess.board()).toEqual({
     a1: null,
