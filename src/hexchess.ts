@@ -332,6 +332,17 @@ function arrayEquals(a: Array<unknown>, b: Array<unknown>) {
   )
 }
 
+export function moveToLan(move: Move): string {
+  let lan =
+    move.piece.toUpperCase() + move.from + (move.captured ? 'x' : '-') + move.to
+
+  if (move.promotion) {
+    lan += '=' + move.promotion.toUpperCase()
+  }
+
+  return lan
+}
+
 export class HexChess {
   private _board: Record<Hexagon, Piece | null> = emptyBoard()
   private _turn: Color = WHITE
@@ -760,7 +771,9 @@ export class HexChess {
     }
 
     // if en passant
-    if (to == this._epHexagon) {
+    let wasEpCapture = false
+    if (to == this._epHexagon && piece.type == PAWN) {
+      wasEpCapture = true
       this.remove(
         vectorToHexagon(
           hexagonToVector(to)
@@ -792,7 +805,7 @@ export class HexChess {
       from: from,
       to: to,
       piece: piece.type,
-      captured: targetPiece ? targetPiece.type : null,
+      captured: targetPiece ? targetPiece.type : wasEpCapture ? 'p' : null,
       promotion: promotion ?? null,
       flags: '',
       san: '',
@@ -832,8 +845,36 @@ export class HexChess {
     return moves
   }
 
-  pgn() {
-    return
+  pgn(): string {
+    let pgn = ''
+    let moveNumber = 0
+    if (this._history.length == 0) {
+      return ''
+    }
+    const chess = new HexChess(this._history[0].before)
+    this._history.forEach((move) => {
+      if (chess.moveNumber() != moveNumber) {
+        moveNumber = chess.moveNumber()
+        pgn += chess.moveNumber() + '. '
+      }
+      pgn += chess._moveToSan(move)
+      chess.move(move.from, move.to, move.promotion ?? undefined)
+      if (chess.isGameOver()) {
+        if (chess.isCheckmate()) {
+          pgn += '#'
+          pgn += chess.turn() == WHITE ? ' 0-1' : ' 1-0'
+        } else if (chess.isDraw()) {
+          pgn += ' 1/2-1/2'
+        } else if (chess.isStalemate()) {
+          pgn += chess.turn() == WHITE ? ' 1/4-3/4' : ' 3/4-1/4'
+        }
+      } else if (chess.inCheck()) {
+        pgn += '+'
+      }
+      pgn += ' '
+    })
+
+    return pgn.trim()
   }
 
   put(hexagon: Hexagon, piece: Piece): void {
@@ -1176,5 +1217,88 @@ export class HexChess {
     }
     this._history = history
     return null
+  }
+
+  private _moveToSan(move: Move): string {
+    const piece = this._board[move.from]
+    if (!piece) {
+      return ''
+    }
+    const possibleClashes: Hexagon[] = []
+    HEXAGONS.forEach((hex) => {
+      const otherPiece = this._board[hex]
+      if (!otherPiece) {
+        return
+      }
+      if (otherPiece.color != piece.color) {
+        return
+      }
+      if (otherPiece.type == piece.type) {
+        possibleClashes.push(hex)
+      }
+    })
+
+    const clashMoves = new Map<Hexagon, Hexagon[]>([])
+    possibleClashes.forEach((location) => {
+      clashMoves.set(location, this.moves(location))
+    })
+
+    const clashes: Hexagon[] = []
+
+    clashMoves.forEach((clashMoveSet, location) => {
+      if (location == move.from) {
+        return
+      }
+      if (clashMoveSet.includes(move.to)) {
+        clashes.push(location)
+      }
+    })
+
+    let san = ''
+    if (piece.type != PAWN) {
+      san += piece.type.toUpperCase()
+    }
+
+    if (piece.type == PAWN && move.captured) {
+      san += move.from.substring(0, 1)
+    }
+
+    if (move.captured) {
+      san += 'x'
+    }
+
+    let fileClashes = 0
+    let rankClashes = 0
+    const file = move.from.substring(0, 1)
+    const rank = move.from.substring(1)
+
+    clashes.forEach((clash) => {
+      if (clash.substring(0, 1) == file) {
+        fileClashes++
+      }
+      if (clash.substring(1) == rank) {
+        rankClashes++
+      }
+    })
+
+    if (fileClashes > 0 && rankClashes > 0) {
+      san += file + rank
+    } else if (fileClashes > 0) {
+      san += rank
+    } else if (rankClashes > 0) {
+      san += file
+    }
+
+    san += move.to
+
+    if (move.promotion) {
+      san += move.promotion.toUpperCase()
+    }
+
+    if (this.inCheck()) {
+      san += '+'
+    }
+
+    return san
   }
 }
