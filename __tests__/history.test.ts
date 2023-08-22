@@ -11,12 +11,10 @@ test('history', () => {
       '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/P5p/6 w - 0 1',
     captured: null,
     color: 'w',
-    flags: '',
     from: 'f2',
-    lan: '',
     piece: 'b',
     promotion: null,
-    san: '',
+    san: 'Bh4',
     to: 'h4',
   })
 })
@@ -32,12 +30,10 @@ test('history', () => {
       '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/P5p/6 w - 0 1',
     captured: null,
     color: 'w',
-    flags: '',
     from: 'j1',
-    lan: '',
     piece: 'p',
     promotion: null,
-    san: '',
+    san: 'j3',
     to: 'j3',
   })
 })
@@ -54,12 +50,10 @@ test('history 2', () => {
       '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/2P3p/6 b j2 1 1',
     captured: null,
     color: 'b',
-    flags: '',
     from: 'g7',
-    lan: '',
     piece: 'p',
     promotion: null,
-    san: '',
+    san: 'g5',
     to: 'g5',
   })
 })

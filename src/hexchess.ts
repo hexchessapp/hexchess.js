@@ -133,9 +133,7 @@ export type Move = {
   piece: PieceSymbol
   captured: PieceSymbol | null
   promotion: PieceSymbol | null
-  flags: string
   san: string
-  lan: string
   before: string
   after: string
 }
@@ -765,17 +763,38 @@ export class HexChess {
       throw new Error('Invalid move: Not the correct turn')
     }
 
-    const targetPiece = this.get(moveObject.to)
-
     if (!legalMoves.some((item) => item.equals(diff))) {
       throw new Error('Invalid move: Illegal')
     }
 
-    const beforeFen = this.fen()
+    const history: Move = {
+      color: piece.color,
+      from: moveObject.from,
+      to: moveObject.to,
+      piece: piece.type,
+      captured: null,
+      promotion: null,
+      san: '',
+      before: this.fen(),
+      after: '',
+    }
+
+    const wasEpCapture = moveObject.to == this._epHexagon && piece.type == PAWN
+    const targetPiece = this.get(moveObject.to)
+    history.captured = targetPiece
+      ? targetPiece.type
+      : wasEpCapture
+      ? 'p'
+      : null
+    history.promotion = moveObject.promotion ?? null
+    history.san = this._moveToSan(history)
 
     // make move
+
     this.put(moveObject.to, piece)
     this.remove(moveObject.from)
+
+    // do promotion
 
     if (
       piece.type == PAWN &&
@@ -807,10 +826,9 @@ export class HexChess {
       }
     }
 
-    // if en passant
-    let wasEpCapture = false
-    if (moveObject.to == this._epHexagon && piece.type == PAWN) {
-      wasEpCapture = true
+    // ep
+
+    if (wasEpCapture) {
       this.remove(
         vectorToHexagon(
           hexagonToVector(moveObject.to)
@@ -819,6 +837,8 @@ export class HexChess {
         )
       )
     }
+
+    // set metadata
 
     this._epHexagon = null
     if (piece.type == PAWN && Math.abs(diff.y) == 2) {
@@ -835,21 +855,10 @@ export class HexChess {
     }
     this._turn = this._turn == WHITE ? BLACK : WHITE
 
-    const afterFen = this.fen()
+    // set after and push
 
-    this._history.push({
-      color: piece.color,
-      from: moveObject.from,
-      to: moveObject.to,
-      piece: piece.type,
-      captured: targetPiece ? targetPiece.type : wasEpCapture ? 'p' : null,
-      promotion: moveObject.promotion ?? null,
-      flags: '',
-      san: '',
-      lan: '',
-      before: beforeFen,
-      after: afterFen,
-    })
+    history.after = this.fen()
+    this._history.push(history)
   }
 
   moveNumber(): number {
@@ -1263,7 +1272,7 @@ export class HexChess {
   private _moveToSan(move: Move): string {
     const piece = this._board[move.from]
     if (!piece) {
-      return ''
+      throw new Error('Invalid Move: Could not generate san')
     }
     const possibleClashes: Hexagon[] = []
     HEXAGONS.forEach((hex) => {

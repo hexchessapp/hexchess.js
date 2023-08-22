@@ -8,9 +8,7 @@ test('moveToLan standard', () => {
     piece: 'p',
     captured: null,
     promotion: null,
-    flags: '',
     san: '',
-    lan: '',
     before: '',
     after: '',
   }
@@ -25,9 +23,7 @@ test('moveToLan capture', () => {
     piece: 'r',
     captured: 'p',
     promotion: null,
-    flags: '',
     san: '',
-    lan: '',
     before: '',
     after: '',
   }
@@ -42,9 +38,7 @@ test('moveToLan promotion', () => {
     piece: 'p',
     captured: null,
     promotion: 'q',
-    flags: '',
     san: '',
-    lan: '',
     before: '',
     after: '',
   }
@@ -59,9 +53,7 @@ test('moveToLan promotion', () => {
     piece: 'p',
     captured: 'q',
     promotion: 'q',
-    flags: '',
     san: '',
-    lan: '',
     before: '',
     after: '',
   }
