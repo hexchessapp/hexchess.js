@@ -106,3 +106,23 @@ test('move premature promotion', () => {
   const chess = new HexChess()
   expect(() => chess.move({ from: 'c2', to: 'c4', promotion: 'q' })).toThrow()
 })
+
+test('move pgn', () => {
+  const chess = new HexChess()
+  const moves = [
+    'b3',
+    'j5',
+    'b4',
+    'j4',
+    'b5',
+    'j3',
+    'b6',
+    'j2',
+    'bxc7',
+    'jxi2',
+    'cxb7Q',
+  ]
+  moves.forEach((move) => {
+    chess.move(move)
+  })
+})

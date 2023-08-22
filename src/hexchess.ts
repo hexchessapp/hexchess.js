@@ -1371,7 +1371,7 @@ export class HexChess {
     const fromRank = +matches[3]
     const to = matches[4] as Hexagon
     const promotion: PieceSymbol | null = matches[5]
-      ? (matches[1].toLowerCase() as PieceSymbol)
+      ? (matches[5].toLowerCase() as PieceSymbol)
       : null
 
     if (!piece) {
