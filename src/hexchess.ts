@@ -1317,26 +1317,28 @@ export class HexChess {
       san += 'x'
     }
 
-    let fileClashes = 0
-    let rankClashes = 0
-    const file = move.from.substring(0, 1)
-    const rank = move.from.substring(1)
+    if (clashes.length > 0) {
+      let fileClashes = 0
+      let rankClashes = 0
+      const file = move.from.substring(0, 1)
+      const rank = move.from.substring(1)
 
-    clashes.forEach((clash) => {
-      if (clash.substring(0, 1) == file) {
-        fileClashes++
-      }
-      if (clash.substring(1) == rank) {
-        rankClashes++
-      }
-    })
+      clashes.forEach((clash) => {
+        if (clash.substring(0, 1) == file) {
+          fileClashes++
+        }
+        if (clash.substring(1) == rank) {
+          rankClashes++
+        }
+      })
 
-    if (fileClashes > 0 && rankClashes > 0) {
-      san += file + rank
-    } else if (fileClashes > 0) {
-      san += rank
-    } else if (rankClashes > 0) {
-      san += file
+      if (fileClashes == 0) {
+        san += file
+      } else if (rankClashes == 0) {
+        san += rank
+      } else {
+        san += file + rank
+      }
     }
 
     san += move.to
@@ -1364,18 +1366,24 @@ export class HexChess {
       throw new Error('Invalid SAN: Incorrect format' + san)
     }
 
-    let piece: PieceSymbol | null = matches[1]
-      ? (matches[1].toLowerCase() as PieceSymbol)
-      : null
-    const fromFile = matches[2]
+    let piece = matches[1]
+    const fromFile = matches[2] as Hexagon
     const fromRank = +matches[3]
     const to = matches[4] as Hexagon
-    const promotion: PieceSymbol | null = matches[5]
-      ? (matches[5].toLowerCase() as PieceSymbol)
-      : null
+    let promotion = matches[5]
+
+    // fixing data
 
     if (!piece) {
       piece = 'p'
+    }
+
+    if (piece) {
+      piece = piece.toLowerCase()
+    }
+
+    if (promotion) {
+      promotion = promotion.toLowerCase()
     }
 
     const relevant: Hexagon[] = []
@@ -1412,7 +1420,7 @@ export class HexChess {
       throw new Error('Invalid SAN: Too ambiguous ' + san)
     }
 
-    return { from: relevant[0], to: to, promotion: promotion ?? undefined }
+    return { from: relevant[0], to: to, promotion: promotion as PieceSymbol }
   }
 
   private _stripSan(san: string): string {
