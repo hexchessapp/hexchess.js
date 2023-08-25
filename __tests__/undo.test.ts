@@ -2,7 +2,7 @@ import { HexChess } from '../src/hexchess'
 
 test('undo', () => {
   const chess = new HexChess()
-  chess.move('f2', 'h4')
+  chess.move({ from: 'f2', to: 'h4' })
   const lastMove = chess.undo()
   expect(lastMove).toEqual({
     after:
@@ -11,12 +11,10 @@ test('undo', () => {
       '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/P5p/6 w - 0 1',
     captured: null,
     color: 'w',
-    flags: '',
     from: 'f2',
-    lan: '',
     piece: 'b',
     promotion: null,
-    san: '',
+    san: 'Bh4',
     to: 'h4',
   })
   expect(chess.history().length).toEqual(0)
@@ -24,8 +22,8 @@ test('undo', () => {
 
 test('undo 2', () => {
   const chess = new HexChess()
-  chess.move('f2', 'h4')
-  chess.move('f10', 'h6')
+  chess.move({ from: 'f2', to: 'h4' })
+  chess.move({ from: 'f10', to: 'h6' })
   const lastMove = chess.undo()
   expect(lastMove).toEqual({
     after:
@@ -34,12 +32,10 @@ test('undo 2', () => {
       '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/B1B1P1p1bbb/K2P2p2k/N1PB2p1n/RP4pr/P5p/6 b - 1 1',
     captured: null,
     color: 'b',
-    flags: '',
     from: 'f10',
-    lan: '',
     piece: 'b',
     promotion: null,
-    san: '',
+    san: 'Bh6',
     to: 'h6',
   })
   expect(chess.history()).toEqual([
@@ -50,12 +46,10 @@ test('undo 2', () => {
         '6/P5p/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/P5p/6 w - 0 1',
       captured: null,
       color: 'w',
-      flags: '',
       from: 'f2',
-      lan: '',
       piece: 'b',
       promotion: null,
-      san: '',
+      san: 'Bh4',
       to: 'h4',
     },
   ])
