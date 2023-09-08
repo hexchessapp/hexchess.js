@@ -139,3 +139,12 @@ test('moves board state maintained', () => {
     k6: null,
   })
 })
+
+test('moves pawn previous issue', () => {
+  const chess = new HexChess()
+  chess.move('g6')
+  chess.move('fxg6')
+  chess.move('f7')
+  chess.move('d5')
+  expect(chess.moves('e7').sort()).toEqual(['e5', 'e6', 'f7'].sort())
+})

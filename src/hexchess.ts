@@ -519,6 +519,9 @@ export class HexChess {
           attacked = true
           return
         }
+        if (blockingPiece != null) {
+          return
+        }
       }
     })
 
@@ -545,6 +548,9 @@ export class HexChess {
             (blockingPiece.type == KING && i == 1))
         ) {
           attacked = true
+          return
+        }
+        if (blockingPiece != null) {
           return
         }
       }
@@ -1071,8 +1077,8 @@ export class HexChess {
             const blockingPiece = this._pieceInDirection(position, move)
             if (
               (blockingPiece == null || blockingPiece.color == piece.color) &&
-              vectorToHexagon(position.clone().add(move) as Vector) !=
-                this._epHexagon
+              !(vectorToHexagon(position.clone().add(move) as Vector) ==
+                this._epHexagon && this._turn == piece.color)
             ) {
               return false
             }

@@ -1,4 +1,4 @@
-import { BISHOP, BLACK, HexChess, KNIGHT, PAWN, ROOK, WHITE } from '../src/hexchess'
+import { BISHOP, BLACK, HexChess, KNIGHT, PAWN, ROOK, WHITE, emptyBoard } from '../src/hexchess'
 
 test('inCheck lone-king', () => {
   const fen = '6/7/8/9/10/k4K5/10/9/8/7/6 w - 0 1'
@@ -122,5 +122,12 @@ test('inCheck pawn-wrong-direction-white', () => {
   const fen = '6/7/8/9/10/k4K5/10/9/8/7/6 w - 0 1'
   const chess = new HexChess(fen)
   chess.put('g5', { color: BLACK, type: PAWN })
+  expect(chess.inCheck()).toEqual(false)
+})
+
+test('inCheck invisible block', () => {
+  const fen = '6/7/8/9/10/k4rb3K/10/9/8/7/6 w - 0 1'
+  const chess = new HexChess(fen)
+  console.log(chess.ascii())
   expect(chess.inCheck()).toEqual(false)
 })
