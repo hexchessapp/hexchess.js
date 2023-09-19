@@ -1,6 +1,6 @@
 {
   "name": "hexchess.js",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "license": "BSD-2-Clause",
   "main": "dist/cjs/hexchess.js",
   "module": "dist/esm/hexchess.js",
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.22.5",
     "@types/jest": "^27.5.2",
+    "@types/lodash": "^4.14.198",
     "@types/node": "^20.4.5",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
@@ -31,6 +32,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "vector2d": "^3.0.0"
   }
 }
