@@ -54,3 +54,33 @@ test('undo 2', () => {
     },
   ])
 })
+
+test('undo en passant', () => {
+  const chess = new HexChess()
+  chess.move({ from: 'f5', to: 'f6' })
+  chess.move({ from: 'g7', to: 'g5' })
+  const fen = chess.fen()
+  chess.move({ from: 'f6', to: 'g6' })
+  chess.undo()
+  expect(chess.fen()).toEqual(fen)
+})
+
+test('undo promotion', () => {
+  const chess = new HexChess(
+    '6/5P1/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/P5p/6 w - 0 1'
+  )
+  const fen = chess.fen()
+  chess.move({ from: 'b6', to: 'b7', promotion: 'q' })
+  chess.undo()
+  expect(chess.fen()).toEqual(fen)
+})
+
+test('undo promotion ep capture', () => {
+  const chess = new HexChess(
+    '5p/5P1/RP4pr/N1P3p1n/Q2P2p2q/BBB1P1p1bbb/K2P2p2k/N1P3p1n/RP4pr/P5p/6 w - 0 1'
+  )
+  const fen = chess.fen()
+  chess.move({ from: 'b6', to: 'a6', promotion: 'q' })
+  chess.undo()
+  expect(chess.fen()).toEqual(fen)
+})

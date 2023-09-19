@@ -26,6 +26,7 @@
  */
 
 import { Vector } from 'vector2d'
+import * as _ from 'lodash'
 
 export const WHITE = 'w'
 export const BLACK = 'b'
@@ -364,6 +365,11 @@ export class HexChess {
     if (err != null) {
       throw err
     }
+  }
+
+  clone(): HexChess {
+    const chess = _.cloneDeep(this)
+    return chess
   }
 
   ascii(): string {
@@ -950,8 +956,35 @@ export class HexChess {
     if (this._history.length < 1) {
       return null
     }
+
     const lastMove = this._history[this._history.length - 1]
-    this._loadWithHistory(lastMove.before, this._history)
+    this.put(lastMove.from, { color: lastMove.color, type: lastMove.piece })
+    this.remove(lastMove.to)
+    const epHex = lastMove.before.split(/\s+/)[2]
+    if (lastMove.captured) {
+      if (epHex == lastMove.to) {
+        const toVector = hexagonToVector(lastMove.to)
+        const takenLocation = vectorToHexagon(
+          toVector.add(new Vector(0, lastMove.color == 'w' ? -1 : 1))
+        )
+        this.put(takenLocation, {
+          color: lastMove.color == 'w' ? 'b' : 'w',
+          type: lastMove.captured,
+        })
+      } else {
+        this.put(lastMove.to, {
+          color: lastMove.color == 'w' ? 'b' : 'w',
+          type: lastMove.captured,
+        })
+      }
+    }
+    if (lastMove.promotion) {
+      this.put(lastMove.from, { color: lastMove.color, type: 'p' })
+    }
+    this._epHexagon = epHex as Hexagon
+    this._halfMoves--
+    this._moveNumber = Math.floor(this._halfMoves / 2) + 1
+    this._turn = this._turn == 'w' ? 'b' : 'w'
     this._history.pop()
     return lastMove
   }
