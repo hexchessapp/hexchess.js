@@ -743,7 +743,7 @@ export class HexChess {
     })
   }
 
-  move(move: string | MoveObject): void {
+  move(move: string | MoveObject, valid?: boolean): void {
     let moveObject: null | MoveObject
     if (typeof move == 'string') {
       moveObject = this._moveFromSan(move)
@@ -755,7 +755,10 @@ export class HexChess {
       throw new Error('Invalid move')
     }
 
-    const legalMoves = this._possibleMoves(moveObject.from)
+    let legalMoves: Vector[] = []
+    if (!valid) {
+      legalMoves = this._possibleMoves(moveObject.from)
+    }
     const fromVector = hexagonToVector(moveObject.from)
     const toVector = hexagonToVector(moveObject.to)
     const diff = toVector.clone().subtract(fromVector) as Vector
@@ -769,7 +772,7 @@ export class HexChess {
       throw new Error('Invalid move: Not the correct turn')
     }
 
-    if (!legalMoves.some((item) => item.equals(diff))) {
+    if (!valid && !legalMoves.some((item) => item.equals(diff))) {
       throw new Error('Invalid move: Illegal')
     }
 
